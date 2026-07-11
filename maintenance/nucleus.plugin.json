@@ -1,0 +1,15 @@
+{
+  "id": "maintenance",
+  "name": "Maintenance",
+  "description": "Platform-wide maintenance banner with admin-managed presets and scheduling.",
+  "version": "0.1.0",
+  "apiVersion": "0.1.0",
+  "target": "core",
+  "crossApp": false,
+  "author": "Nucleus",
+  "extensions": {
+    "adminTabs": [
+      { "path": "maintenance", "label": "Maintenance", "component": "client/admin/MaintenanceView.vue" }
+    ]
+  }
+}
