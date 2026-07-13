@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import WhatsNewDeleteModal from './WhatsNewDeleteModal.vue'
+import WhatsNewModalView from '../WhatsNewModalView.vue'
 
 // Admin control for the "What's New" changelog. Announcements accumulate into a
 // cumulative, per-app-tabbed changelog shown to users on login (once per new
@@ -200,6 +201,36 @@ async function onDeleted() {
 }
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : ''
+
+// ── Preview ─────────────────────────────────────────────────────────────────
+// Render an announcement (a saved row, or the live draft being edited) through
+// the exact same modal users get on login — before it's ever published. We wrap
+// it in the feed shape the user modal consumes, stamped published/now with a null
+// seen-baseline so it shows in its freshly-published "NEW" state. Nothing is sent
+// to the server; this is purely local.
+const previewOpen = ref(false)
+const previewFeed = ref([])
+
+function preview(src) {
+  const a = src || draft.value
+  if (!a) return
+  previewFeed.value = [{
+    _id: a._id || 'preview',
+    version: a.version || '',
+    published: true,
+    publishedAt: new Date().toISOString(),
+    entries: (a.entries || []).map(e => ({
+      app: e.app,
+      version: e.version || '',
+      features: (e.features || []).map(f => ({
+        title: { ...(f.title || {}) },
+        body: { ...(f.body || {}) },
+        icon: f.icon || null,
+      })),
+    })),
+  }]
+  previewOpen.value = true
+}
 </script>
 
 <template>
@@ -279,6 +310,7 @@ const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : ''
               :disabled="busy"
               @click="setPublished(a, !a.published)"
             >{{ a.published ? 'Unpublish' : 'Publish' }}</button>
+            <button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-white/70 bg-slate-500/10 hover:bg-slate-500/20 cursor-pointer transition-colors" @click="preview(a)" title="See how this looks to users">Preview</button>
             <button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 cursor-pointer transition-colors" @click="openEdit(a)">Edit</button>
             <button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-600 dark:text-red-400 bg-red-500/12 hover:bg-red-500/22 cursor-pointer transition-colors disabled:opacity-40" :disabled="busy" @click="askDelete(a)">Delete</button>
           </li>
@@ -337,12 +369,22 @@ const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : ''
 
           <p class="text-[11px] text-slate-400 dark:text-white/35">Fill each language via the tabs above; empty languages fall back to {{ baseLang }} for the viewer. Publish when ready — that's when it pops for users.</p>
 
-          <div>
+          <div class="flex items-center gap-3">
             <button class="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 cursor-pointer transition-colors" :disabled="busy" @click="saveDraft">Save announcement</button>
+            <button class="px-4 py-2 rounded-xl text-sm font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 cursor-pointer transition-colors" @click="preview(draft)" title="See how this draft looks to users — nothing is saved">Preview</button>
           </div>
         </div>
       </section>
     </template>
+
+    <!-- Preview: the real user modal, driven by the selected/draft announcement -->
+    <WhatsNewModalView
+      v-model="previewOpen"
+      :announcements="previewFeed"
+      :default-lang="baseLang"
+      :seen-baseline="null"
+      preview
+    />
 
     <!-- Delete confirmation -->
     <WhatsNewDeleteModal
