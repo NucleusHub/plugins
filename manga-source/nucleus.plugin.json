@@ -1,0 +1,18 @@
+{
+  "id": "manga-source",
+  "name": "Manga Source",
+  "description": "Adds a manga import source to Shelf, powered by the free AniList API — search manga and autofill covers, authors, genres and publication info.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "shelf",
+  "crossApp": false,
+  "author": "Nucleus",
+  "extensions": {
+    "shelfProviders": [
+      "server/MangaProvider.js"
+    ],
+    "shelfOpenTargets": [
+      "client/shelfOpenTargets.js"
+    ]
+  }
+}
