@@ -1,0 +1,15 @@
+{
+  "id": "localization",
+  "name": "Localization",
+  "description": "Multi-language support: admin-managed languages, per-app enablement, translation overrides, and runtime language switching. Disable or uninstall to run every app in its manifest default language.",
+  "version": "0.1.0",
+  "apiVersion": "0.1.0",
+  "target": "core",
+  "crossApp": false,
+  "author": "Nucleus",
+  "extensions": {
+    "adminTabs": [
+      { "path": "localization", "label": "Localization", "component": "client/admin/LocalizationView.vue" }
+    ]
+  }
+}

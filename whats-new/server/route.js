@@ -1,11 +1,14 @@
 import { Router } from 'express'
+import mongoose from 'mongoose'
 import WhatsNewAnnouncement from './WhatsNewAnnouncement.js'
-// Core auth-server models/middleware/utils live three levels up — this plugin's
+// Core auth-server models/middleware live three levels up — this plugin's
 // server dir is mounted at /app/plugins/whats-new/server in the auth-server.
 import Profile from '../../../models/Profile.js'
-import LocaleConfig from '../../../models/LocaleConfig.js'
 import { requireAuth, requireAdmin } from '../../../middleware/auth.js'
-import { BASE_LANG } from '../../../utils/locales.js'
+
+// The base/fallback language. Inlined (not imported from the localization
+// plugin) so What's New keeps working when localization isn't installed.
+const BASE_LANG = 'en-US'
 
 const router = Router()
 
@@ -33,7 +36,10 @@ function serializeAnnouncement(a) {
 }
 
 async function installedLanguages() {
-  const cfg = await LocaleConfig.findOne().lean()
+  // The LocaleConfig model is only registered when the localization plugin is
+  // installed. Absent → English-only (multi-language content is a no-op).
+  const LocaleConfig = mongoose.models.LocaleConfig
+  const cfg = LocaleConfig ? await LocaleConfig.findOne().lean() : null
   const langs = cfg?.installedLanguages?.length ? cfg.installedLanguages : [BASE_LANG]
   const defaultLang = cfg?.defaultLanguage || BASE_LANG
   return { langs, defaultLang }

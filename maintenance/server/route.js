@@ -1,12 +1,15 @@
 import { Router } from 'express'
 import fs from 'node:fs'
 import path from 'node:path'
+import mongoose from 'mongoose'
 import MaintenancePreset from './MaintenancePreset.js'
-// Core auth-server models/middleware/utils live three levels up — this plugin's
-// server dir is mounted at /app/plugins/maintenance/server in the auth-server.
-import LocaleConfig from '../../../models/LocaleConfig.js'
+// Core auth-server middleware lives three levels up — this plugin's server dir
+// is mounted at /app/plugins/maintenance/server in the auth-server.
 import { requireAdmin } from '../../../middleware/auth.js'
-import { BASE_LANG } from '../../../utils/locales.js'
+
+// The base/fallback language. Inlined (not imported from the localization
+// plugin) so maintenance keeps working when localization isn't installed.
+const BASE_LANG = 'en-US'
 
 const router = Router()
 
@@ -47,7 +50,10 @@ function fillEta(tpl, eta) {
 }
 
 async function installedLanguages() {
-  const cfg = await LocaleConfig.findOne().lean()
+  // The LocaleConfig model is only registered when the localization plugin is
+  // installed. Absent → English-only (multi-language content is a no-op).
+  const LocaleConfig = mongoose.models.LocaleConfig
+  const cfg = LocaleConfig ? await LocaleConfig.findOne().lean() : null
   const langs = cfg?.installedLanguages?.length ? cfg.installedLanguages : [BASE_LANG]
   const defaultLang = cfg?.defaultLanguage || BASE_LANG
   return { langs, defaultLang }
