@@ -1,0 +1,15 @@
+{
+  "id": "anime-source",
+  "name": "Anime Source",
+  "description": "Adds an anime search source to Watchlist, powered by the free Kitsu API — toggle it on to also search anime (alongside TMDb) and autofill posters, year, episodes, runtime and type.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "watchlist",
+  "crossApp": false,
+  "author": "Nucleus",
+  "extensions": {
+    "watchlistSources": [
+      "client/watchlistSources.js"
+    ]
+  }
+}
