@@ -2,7 +2,7 @@
   "id": "maintenance",
   "name": "Maintenance",
   "description": "Platform-wide maintenance banner with admin-managed presets and scheduling.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "apiVersion": "0.1.0",
   "target": "core",
   "crossApp": false,

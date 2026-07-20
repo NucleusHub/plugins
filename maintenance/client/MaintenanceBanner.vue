@@ -7,6 +7,7 @@
 // keeps showing for the whole outage. Flip it with `infra/maintenance on|off`.
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@core/useI18n.js'
+import AlertTriangleIcon from './assets/icons/alert-triangle.svg?component'
 
 const POLL_MS = 8000
 
@@ -55,12 +56,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
     <div v-if="active" class="mnt-banner" role="alert" aria-live="assertive">
       <div class="mnt-inner">
         <span class="mnt-pulse" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
+          <AlertTriangleIcon width="22" height="22" />
         </span>
         <div class="mnt-text">
           <p class="mnt-title">{{ title }}</p>

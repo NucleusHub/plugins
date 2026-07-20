@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import TemplateModal from '@core/TemplateModal.vue'
+import { Icon } from '@core/icons'
 
 // Confirm + delete a "What's New" announcement. Mirrors the other admin delete
 // modals (UserDeleteModal, GroupDeleteModal) instead of a native confirm().
@@ -49,9 +50,7 @@ async function confirm() {
 
       <!-- Hard warning -->
       <div class="flex items-start gap-2.5 rounded-xl bg-red-500/10 border border-red-500/30 px-3.5 py-2.5">
-        <svg class="w-4 h-4 mt-0.5 shrink-0 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86l-8.48 14.7A1.5 1.5 0 0 0 3.11 21h17.78a1.5 1.5 0 0 0 1.3-2.44l-8.48-14.7a1.5 1.5 0 0 0-2.62 0z" />
-        </svg>
+        <Icon name="warningTriangle" class="w-4 h-4 mt-0.5 shrink-0 text-red-500" />
         <p class="text-xs font-medium text-red-700 dark:text-red-300 leading-relaxed">
           <strong>This cannot be undone.</strong>
         </p>

@@ -10,6 +10,8 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@core/useI18n.js'
 import { useRegistry } from '@core/useRegistry.js'
 import AppIcon from '@core/AppIcon.vue'
+import { Icon } from '@core/icons'
+import SparkleIcon from './assets/icons/sparkle.svg?component'
 
 const props = defineProps({
   // Open/closed (v-model). The overlay + transition live here.
@@ -169,11 +171,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           <!-- Header -->
           <div class="wn-header">
             <div class="wn-spark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-                   stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3l1.9 4.8L18.7 9.7 13.9 11.6 12 16.4 10.1 11.6 5.3 9.7 10.1 7.8z" />
-                <path d="M19 15l.7 1.8L21.5 17.5 19.7 18.2 19 20l-.7-1.8L16.5 17.5 18.3 16.8z" />
-              </svg>
+              <SparkleIcon width="20" height="20" />
             </div>
             <div class="min-w-0">
               <div class="wn-title-row">
@@ -184,9 +182,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
               <p class="wn-sub">{{ t('core.whatsNew.subheading') }}</p>
             </div>
             <button class="wn-x" @click="dismiss" :aria-label="t('core.whatsNew.close')">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <Icon name="close" :sw="2.2" />
             </button>
           </div>
 
@@ -202,9 +198,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
                 @click="activeTab = tb.id"
               >
                 <span v-if="tb.id === 'platform'" class="wn-tab-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3l1.9 4.8L18.7 9.7 13.9 11.6 12 16.4 10.1 11.6 5.3 9.7 10.1 7.8z" />
-                  </svg>
+                  <SparkleIcon width="16" height="16" />
                 </span>
                 <AppIcon v-else :svg="tb.iconSvg" class="wn-tab-icon" />
                 <span class="wn-tab-label">{{ tb.name }}</span>
