@@ -1,0 +1,15 @@
+{
+  "id": "in-common",
+  "name": "In Common",
+  "description": "Shows a friendly badge on Watchlist titles and Shelf books when other people also have the same item — \"hey, this person has this too\". Choose whether it looks across your group or the whole network in Admin → In Common (defaults to the whole network).",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": ["watchlist", "shelf"],
+  "crossApp": true,
+  "author": "Nucleus",
+  "extensions": {
+    "adminTabs": [
+      { "path": "in-common", "label": "In Common", "component": "client/admin/InCommonView.vue" }
+    ]
+  }
+}
