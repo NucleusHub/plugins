@@ -12,7 +12,7 @@ import AvatarCircle from '@core/auth/AvatarCircle.vue'
 // the pointer is over the popover makes the hover feel stable across the gap.
 const props = defineProps({
   profiles: { type: Array, default: () => [] },
-  // 'watchlist' | 'shelf' — only tweaks the popover wording.
+  // 'watchlist' | 'shelf' | 'dex' | 'dex-binder' — only tweaks the wording.
   context: { type: String, default: 'watchlist' },
   // 'default' — indigo tint, for on-card / in-modal placement.
   // 'overlay' — dark glass, legible sitting on top of a poster/cover image.
@@ -29,10 +29,16 @@ const popStyle = ref({})
 let closeTimer = null
 
 const count = computed(() => props.profiles.length)
+const NOUN = { shelf: 'this book', dex: 'this card', 'dex-binder': 'this card' }
 const heading = computed(() => {
+  // Inside a shared binder the interesting fact is that the card is already in
+  // THAT collection, not that some acquaintance owns one somewhere.
+  if (props.context === 'dex-binder') {
+    const who = count.value === 1 ? 'member' : 'members'
+    return `Already in this binder — ${count.value} ${who} have this card`
+  }
   const who = count.value === 1 ? 'person also has' : 'people also have'
-  const what = props.context === 'shelf' ? 'this book' : 'this title'
-  return `${count.value} ${who} ${what}`
+  return `${count.value} ${who} ${NOUN[props.context] ?? 'this title'}`
 })
 
 const asProfile = (p) => ({

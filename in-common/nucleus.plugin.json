@@ -1,10 +1,10 @@
 {
   "id": "in-common",
   "name": "In Common",
-  "description": "Shows a friendly badge on Watchlist titles and Shelf books when other people also have the same item — \"hey, this person has this too\". Choose whether it looks across your group or the whole network in Admin → In Common (defaults to the whole network).",
-  "version": "1.0.0",
+  "description": "Shows a friendly badge on Watchlist titles, Shelf books and Dex cards when other people also have the same item — \"hey, this person has this too\". Inside a shared Dex binder it tells you whether the card is already in that binder's collection. Choose whether it looks across your group or the whole network in Admin → In Common (defaults to the whole network).",
+  "version": "1.1.0",
   "apiVersion": "0.1.0",
-  "target": ["watchlist", "shelf"],
+  "target": ["watchlist", "shelf", "dex"],
   "crossApp": true,
   "author": "Nucleus",
   "extensions": {

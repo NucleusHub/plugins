@@ -37,6 +37,15 @@ export function watchlistKeys(item) {
   return keys
 }
 
+// Candidate keys for a Dex card. Unlike watchlist titles and books, there is
+// nothing to guess at here: Dex's catalog is a single shared, immutable card
+// database, so every user's collection points at the very same cardId. Matching
+// is therefore exact, and the "fuzzy join" caveat above doesn't apply.
+export function cardKeys(item) {
+  const id = item?.cardId ?? item?.key
+  return id ? [`card:${String(id)}`] : []
+}
+
 // Candidate keys for a book: ISBN, each external identifier, and a
 // title+first-author fallback. Two books match if they share ANY key.
 export function bookKeys(book) {

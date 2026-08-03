@@ -10,17 +10,24 @@
 //   PATCH /config   { scope }  → { scope }                       (admin only)
 //   POST  /watchlist { items } → { matches: { key: profile[] } } (any signed-in user)
 //   POST  /shelf     { items } → { matches: { key: profile[] } } (any signed-in user)
+//   POST  /dex       { items, binderId? }
+//                              → { matches: { key: profile[] } } (any signed-in user)
 //
 // The lookups only ever return OTHER people (never the caller) and only within
 // the configured scope, so nobody learns about libraries they're not already
 // grouped with (or, in network mode, that the install is deliberately open).
+//
+// /dex takes an optional `binderId`. Passed, the audience narrows from the
+// configured scope to exactly the people that binder is shared with, which
+// answers a different and more useful question while you're looking at one:
+// "is this card already in THIS shared collection?"
 import { Router } from 'express'
 import mongoose from 'mongoose'
 import Profile from '../../../models/Profile.js'
 import Group from '../../../models/Group.js'
 import { requireAuth, requireAdmin } from '../../../middleware/auth.js'
 import InCommonConfig from './InCommonConfig.js'
-import { watchlistKeys, bookKeys } from './match.js'
+import { watchlistKeys, bookKeys, cardKeys } from './match.js'
 
 const router = Router()
 
@@ -200,6 +207,79 @@ router.post('/shelf', requireAuth, async (req, res) => {
     }
 
     const matches = await resolveMatches(items, (it) => bookKeys(it), index)
+    res.json({ matches })
+  } catch (e) {
+    console.error('[in-common] route error:', e)
+    res.status(500).json({ error: 'server error' })
+  }
+})
+
+// ── Dex overlap ──────────────────────────────────────────────────────────────
+
+// The profiles a shared binder reaches: its owner, everyone it's explicitly
+// shared with, and — for a group binder — every member of that group. Returns
+// null when the binder doesn't exist or the caller isn't part of it, which the
+// route treats as "no audience" rather than leaking the binder's existence.
+async function binderAudience(binderId, meId) {
+  if (!mongoose.Types.ObjectId.isValid(binderId)) return null
+  const binder = await mongoose.connection.db
+    .collection('dexbinders')
+    .findOne(
+      { _id: new mongoose.Types.ObjectId(binderId) },
+      { projection: { profileId: 1, groupId: 1, shares: 1 } }
+    )
+  if (!binder) return null
+
+  const ids = new Set([String(binder.profileId)])
+  for (const s of binder.shares ?? []) if (s?.profileId) ids.add(String(s.profileId))
+  if (binder.groupId) {
+    const group = await Group.findById(binder.groupId).select('memberIds').lean()
+    for (const m of group?.memberIds ?? []) ids.add(String(m))
+  }
+
+  const me = String(meId)
+  // Only members may ask about a binder's collection.
+  if (!ids.has(me)) return null
+  ids.delete(me)
+  return [...ids]
+}
+
+router.post('/dex', requireAuth, async (req, res) => {
+  try {
+    const items = readItems(req)
+    if (!items.length) return res.json({ matches: {} })
+
+    const binderId = req.body?.binderId ? String(req.body.binderId) : ''
+    let audience
+    if (binderId) {
+      audience = await binderAudience(binderId, req.profile.profileId)
+      // Not a member (or no such binder) → answer "nobody", same as an empty
+      // scope. The caller can't tell the two apart, which is the point.
+      if (!audience) return res.json({ matches: {} })
+    } else {
+      audience = await audienceIds(req.profile.profileId, await currentScope())
+    }
+    if (!audience.length) return res.json({ matches: {} })
+
+    // Dex's catalog is one shared, immutable card database, so every collection
+    // row points at the same cardId — an exact join, no fuzzy matching needed.
+    const rows = await mongoose.connection.db
+      .collection('dexcollectionitems')
+      .find(
+        { profileId: { $in: toObjectIds(audience) }, cardId: { $in: items.map((it) => String(it.cardId ?? it.key)) } },
+        { projection: { profileId: 1, cardId: 1 } },
+      )
+      .toArray()
+
+    const index = new Map()
+    for (const r of rows) {
+      for (const k of cardKeys(r)) {
+        if (!index.has(k)) index.set(k, new Set())
+        index.get(k).add(String(r.profileId))
+      }
+    }
+
+    const matches = await resolveMatches(items, (it) => cardKeys(it), index)
     res.json({ matches })
   } catch (e) {
     console.error('[in-common] route error:', e)
