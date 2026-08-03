@@ -80,8 +80,11 @@ async function persist() {
   }
 }
 
+// Contributor, not viewer: adding a person to a binder means letting them slot
+// cards in and out — that's the point of sharing one. Dropping to Viewer is the
+// deliberate act, so it's the dropdown's job, not the default's.
 function addPerson(person) {
-  shares.value = [...shares.value, { ...person, grant: 'viewer' }]
+  shares.value = [...shares.value, { ...person, grant: 'contributor' }]
   adding.value = false
   search.value = ''
   persist()
@@ -161,7 +164,7 @@ const SELECT =
       </div>
 
       <p v-else-if="!data.group" class="text-sm text-slate-500 dark:text-slate-400">
-        This binder is private. Share it with someone to let them look through it.
+        This binder is private. Share it with someone to let them add and remove cards.
       </p>
 
       <!-- Add -->
