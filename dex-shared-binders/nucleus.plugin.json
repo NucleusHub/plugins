@@ -1,0 +1,17 @@
+{
+  "id": "dex-shared-binders",
+  "name": "Shared Binders",
+  "description": "Share a Dex binder with other people. Each person gets a role — Viewer can look, Contributor can slot cards in and out, Admin can rename, re-cover and re-share. Admins can also turn on a shared group binder for a group, the same way Orbit gives a group its shared directory. Remove the plugin and every binder quietly goes back to being personal.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "dex",
+  "crossApp": false,
+  "author": "Nucleus",
+  "dependencies": {
+    "apps": { "dex": ">=0.1.0" }
+  },
+  "extensions": {
+    "dexBinderAccess": "server/binderAccess.js",
+    "dexRoutes": ["server/route.js"]
+  }
+}
