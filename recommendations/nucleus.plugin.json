@@ -1,0 +1,21 @@
+{
+  "id": "recommendations",
+  "name": "For You",
+  "description": "Suggests what to watch next from what you've finished recently. Builds a taste profile out of your completed items' genres — weighted by how recently you watched them and how you rated them — then re-ranks your own backlog against it and pulls fresh titles from TMDb that you don't have yet. Choose whether it gets its own tab or sits as a panel above your list in Settings → Extras.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "watchlist",
+  "crossApp": false,
+  "author": "Nucleus",
+  "dependencies": {
+    "apps": { "watchlist": ">=0.7.0" }
+  },
+  "extensions": {
+    "watchlistSurface": {
+      "path": "for-you",
+      "label": "For You",
+      "placements": ["tab", "panel"],
+      "defaultPlacement": "tab"
+    }
+  }
+}
