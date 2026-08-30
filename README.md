@@ -13,10 +13,11 @@ directory named after its id:
 ```
 
 > **Status.** The `plugin-runtime` service *discovers* plugins and serves their
-> metadata (`/api/plugins`). Beyond discovery, two extension surfaces are live:
-> a plugin's `extensions.adminTabs` are mounted into the Admin Console, and a
+> metadata (`/api/plugins`). Beyond discovery, several extension surfaces are
+> live: a plugin's `extensions.adminTabs` are mounted into the Admin Console, a
 > plugin's `server/route.js` is imported by the host it targets (e.g. the
-> auth-server for `core` plugins). Plugins can be **enabled/disabled** globally
+> auth-server for `core` plugins), and host apps glob fixed client filenames out
+> of plugin dirs (see *App-level client extension points* below). Plugins can be **enabled/disabled** globally
 > from Admin → **Plugins** (stored as `/api/auth/overrides` `plugins[]`); UI a
 > plugin owns gates on that state. Dependency resolution and install/update flows
 > are still future work.
@@ -73,6 +74,56 @@ Field notes:
   `plugins/*/client/admin/**/*.vue`, mounts the named component at `/{path}`, and
   hides the tab when the plugin is disabled. `component` is relative to the
   plugin dir.
+
+## App-level client extension points
+
+Beyond admin tabs, a host app can invite plugins into its own UI. Each point is
+a **fixed filename** the app globs out of `plugins/*/client/` — globbing one
+known name rather than a manifest-supplied path is what keeps unrelated plugin
+code out of the app's bundle. Every one of them is gated on the plugin being
+enabled, and a plugin only participates if its manifest `target` includes that
+app.
+
+| File a plugin ships | Host | What it contributes |
+|---|---|---|
+| `client/watchlistSources.js` | Watchlist | Extra metadata backends for the add/edit search box (see `apps/watchlist/client/src/api/sources.js` for the contract). Also declared as `extensions.watchlistSources`. |
+| `client/watchlistIndicator.vue` | Watchlist | A small badge on every item card. Receives `item`. |
+| `client/watchlistSurface.vue` | Watchlist | A whole section of the app — see below. |
+| `client/shelfIndicator.vue`, `client/dexIndicator.vue` | Shelf, Dex | The same badge idea in the sibling apps. |
+
+### `watchlistSurface` — a plugin-owned section of the Watchlist
+
+The plugin ships `client/watchlistSurface.vue` and describes it in the manifest:
+
+```jsonc
+"extensions": {
+  "watchlistSurface": {
+    "path": "for-you",              // route segment, mounted at /watchlist/x/{path}
+    "label": "For You",             // nav tab label (an i18n key also works)
+    "placements": ["tab", "panel"], // which the component can handle; default both
+    "defaultPlacement": "tab"       // until the user chooses
+  }
+}
+```
+
+**The user picks where it renders**, in Watchlist → Settings → Extras: its own
+nav tab, a panel above the item grid, or off. The choice is stored per profile
+(`WatchlistSettings.pluginPlacements`), so it follows them across devices and
+survives the plugin being reinstalled.
+
+The component is the same in both placements — the host tells it which it's in
+and hands it the data:
+
+| | |
+|---|---|
+| prop `items` | the viewer's full watchlist, already loaded by the host |
+| prop `placement` | `'tab'` or `'panel'`, so it can render compactly in a panel |
+| emit `changed` | asks the host to reload items (the plugin added or changed one) |
+
+In tab placement the host wraps it in `views/PluginSurfaceView.vue`, which owns
+the header, sidebar and nav — a surface never renders app chrome itself.
+
+`recommendations` is the reference example.
 
 The current plugin API version is defined in
 `infra/plugin-runtime/constants.js`. See `infra/nucleus-docs/PLUGINS.md` for the
