@@ -15,8 +15,8 @@ directory named after its id:
 > **Status.** The `plugin-runtime` service *discovers* plugins and serves their
 > metadata (`/api/plugins`). Beyond discovery, several extension surfaces are
 > live: a plugin's `extensions.adminTabs` are mounted into the Admin Console, a
-> plugin's `server/route.js` is imported by the host it targets (e.g. the
-> auth-server for `core` plugins), and host apps glob fixed client filenames out
+> plugin's `server/route.js` is mounted by the host it targets (the auth-server
+> for `core` plugins — see *Server extension point*), and host apps glob fixed client filenames out
 > of plugin dirs (see *App-level client extension points* below). Plugins can be **enabled/disabled** globally
 > from Admin → **Plugins** (stored as `/api/auth/overrides` `plugins[]`); UI a
 > plugin owns gates on that state. Dependency resolution and install/update flows
@@ -54,6 +54,7 @@ discovery (same convention as apps/widgets).
   "permissions": ["files:read"],  // optional
 
   "extensions": {                 // optional — what the plugin contributes
+    "authRoute": "/my-path",      // optional — see "Server extension point"
     "adminTabs": [
       { "path": "my-plugin", "label": "My Plugin", "component": "client/admin/MyView.vue" }
     ]
@@ -74,6 +75,45 @@ Field notes:
   `plugins/*/client/admin/**/*.vue`, mounts the named component at `/{path}`, and
   hides the tab when the plugin is disabled. `component` is relative to the
   plugin dir.
+
+## Core client extension point — `client/core.js`
+
+A plugin targeting `core` can add chrome that every app renders by shipping
+`client/core.js` (globbed by `core/usePluginExtensions.js`):
+
+```js
+export default {
+  // Mounted once by core/auth/AuthGuard.vue in every app.
+  // auth: true → signed-in viewers only; false → every auth state.
+  mounts: [{ component: () => import('./Banner.vue'), auth: false }],
+  // Buttons in the sidebar + profile switcher (signed-in viewers).
+  launchers: [{ labelKey: 'core.foo.launch', icon, iconOutline, open }],
+  // Rows in Profile settings → Plugins → Preferences. Receives the edited
+  // `profile`; may emit `updated` after saving.
+  preferences: [{ component: () => import('./Pref.vue') }],
+}
+```
+
+Every entry is gated on the plugin being enabled. Core never imports a plugin
+directly, so the platform builds and runs with `/plugins` empty or missing.
+`maintenance` (banner) and `whats-new` (modal + launcher + preference) are the
+reference examples.
+
+## Server extension point — the auth-server
+
+The auth-server (`core/auth-server/serverPlugins.js`) hosts a plugin when its
+manifest targets `core` or sets `extensions.authRoute`. A hosted plugin may ship:
+
+| File | What happens |
+|---|---|
+| `server/route.js` | Default-exported express `Router`, mounted at `/api/auth` + `extensions.authRoute` — `/api/auth/<id>` when omitted. `"authRoute": false` opts out. |
+| `server/migrate.js` | Default-exported `async () => {}`, run on every boot after the DB connects. Keep it idempotent (seed only what's missing). |
+
+A non-core plugin opts in with `authRoute` — `in-common` does, since its
+cross-app lookup needs the identity data the auth-server owns. Nothing is named
+in core: dropping a plugin in is enough, a missing `/plugins` hosts nothing,
+and a plugin that fails to load is logged and skipped rather than taking the
+server down.
 
 ## App-level client extension points
 
@@ -134,9 +174,10 @@ full architecture.
 A core plugin can own a whole platform capability and cleanly degrade when it's
 removed. **`localization`** is the reference example:
 
-- Its `server/route.js` (mounted by the auth-server at `/api/auth/i18n` via a
-  **guarded dynamic import**) owns multi-language catalogs, the per-app enable
-  matrix, translation overrides, and the `LocaleConfig`/`LocaleOverride` models.
+- Its `server/route.js` (mounted by the auth-server at `/api/auth/i18n` via
+  `"authRoute": "/i18n"`) owns multi-language catalogs, the per-app enable
+  matrix, translation overrides, and the `LocaleConfig`/`LocaleOverride` models;
+  its `server/migrate.js` seeds the singleton `LocaleConfig`.
   Its `client/admin/LocalizationView.vue` is the Admin tab.
 - When the plugin is **absent** the auth-server never mounts `/i18n`, and when
   it's **disabled** the client ignores it. Either way every app falls back to a

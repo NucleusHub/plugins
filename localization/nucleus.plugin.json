@@ -8,6 +8,7 @@
   "crossApp": false,
   "author": "Nucleus",
   "extensions": {
+    "authRoute": "/i18n",
     "adminTabs": [
       { "path": "localization", "label": "Localization", "component": "client/admin/LocalizationView.vue" }
     ]

@@ -8,6 +8,7 @@
   "crossApp": true,
   "author": "Nucleus",
   "extensions": {
+    "authRoute": "/in-common",
     "adminTabs": [
       { "path": "in-common", "label": "In Common", "component": "client/admin/InCommonView.vue" }
     ]
