@@ -182,7 +182,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
               <p class="wn-sub">{{ t('core.whatsNew.subheading') }}</p>
             </div>
             <button class="wn-x" @click="dismiss" :aria-label="t('core.whatsNew.close')">
-              <Icon name="close" :sw="2.2" />
+              <Icon width="18" height="18" name="close" :sw="2.2" />
             </button>
           </div>
 
