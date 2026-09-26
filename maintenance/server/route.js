@@ -3,24 +3,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 import mongoose from 'mongoose'
 import MaintenancePreset from './MaintenancePreset.js'
-// Core auth-server middleware lives three levels up — this plugin's server dir
-// is mounted at /app/plugins/maintenance/server in the auth-server.
 import { requireAdmin } from '../../../middleware/auth.js'
 
-// The base/fallback language. Inlined (not imported from the localization
-// plugin) so maintenance keeps working when localization isn't installed.
+// Inlined so maintenance works without the localization plugin.
 const BASE_LANG = 'en-US'
 
 const router = Router()
 
-// The static flag file nginx serves at /maintenance.json. Writing it here (while
-// the app servers are still up) is what lets the banner persist through a rebuild
-// — nginx keeps serving the file after this server goes down. Same file the
-// `infra/maintenance` CLI writes; the two are interchangeable.
 const STATE_DIR = process.env.STATE_DIR || '/srv/state'
 const FLAG = path.join(STATE_DIR, 'maintenance.json')
 
-// Mongoose Map → plain object for JSON responses.
 const mapObj = (m) => (m instanceof Map ? Object.fromEntries(m) : (m || {}))
 
 function serializePreset(p) {
@@ -35,8 +27,6 @@ function serializePreset(p) {
   }
 }
 
-// Turn an ETA argument into human text, mirroring infra/maintenance: a bare
-// integer → "~N min"; anything else verbatim; empty → a neutral default.
 function formatEta(raw) {
   const s = String(raw ?? '').trim()
   if (!s) return 'a few minutes'
@@ -44,14 +34,11 @@ function formatEta(raw) {
   return s
 }
 
-// Fill {eta} (and the CLI's legacy %ETA%) in a template.
 function fillEta(tpl, eta) {
   return String(tpl ?? '').replace(/\{eta\}/g, eta).replace(/%ETA%/g, eta)
 }
 
 async function installedLanguages() {
-  // The LocaleConfig model is only registered when the localization plugin is
-  // installed. Absent → English-only (multi-language content is a no-op).
   const LocaleConfig = mongoose.models.LocaleConfig
   const cfg = LocaleConfig ? await LocaleConfig.findOne().lean() : null
   const langs = cfg?.installedLanguages?.length ? cfg.installedLanguages : [BASE_LANG]
@@ -59,7 +46,6 @@ async function installedLanguages() {
   return { langs, defaultLang }
 }
 
-// Read the flag file if present; null when there's no active maintenance.
 function readFlag() {
   try {
     const raw = fs.readFileSync(FLAG, 'utf8')
@@ -69,8 +55,6 @@ function readFlag() {
     return null
   }
 }
-
-// ── Presets (admin) ──────────────────────────────────────────────────────────
 
 router.get('/presets', requireAdmin, async (_req, res) => {
   try {
@@ -112,7 +96,7 @@ router.patch('/presets/:id', requireAdmin, async (req, res) => {
   try {
     const preset = await MaintenancePreset.findById(req.params.id)
     if (!preset) return res.status(404).json({ error: 'Preset not found' })
-    // A builtin's key is a stable contract (used by scripts) — don't let it change.
+    // Builtin keys are used by scripts and must not change.
     if (req.body?.key !== undefined && !preset.builtin) {
       const key = String(req.body.key).trim().toLowerCase()
       if (!KEY_RE.test(key)) return res.status(400).json({ error: 'Key must be lowercase letters, digits or dashes (max 40)' })
@@ -147,9 +131,6 @@ router.delete('/presets/:id', requireAdmin, async (req, res) => {
   }
 })
 
-// ── State (admin) ────────────────────────────────────────────────────────────
-
-// Current banner state + everything the admin page needs to render its controls.
 router.get('/status', requireAdmin, async (_req, res) => {
   try {
     const { langs, defaultLang } = await installedLanguages()
@@ -167,8 +148,6 @@ router.get('/status', requireAdmin, async (_req, res) => {
   }
 })
 
-// Build the flag payload: title/message rendered for every installed language,
-// so the banner can show the viewer's language with no server dependency.
 function buildFlag({ langs, defaultLang, preset, eta, custom }) {
   const title = {}
   const message = {}
@@ -191,7 +170,6 @@ function buildFlag({ langs, defaultLang, preset, eta, custom }) {
   }
 }
 
-// Raise the banner. Body: { preset: <key>, eta } OR { custom: { title, message, level } }.
 router.post('/on', requireAdmin, async (req, res) => {
   try {
     const { langs, defaultLang } = await installedLanguages()
@@ -227,10 +205,9 @@ router.post('/on', requireAdmin, async (req, res) => {
   }
 })
 
-// Clear the banner.
 router.post('/off', requireAdmin, async (_req, res) => {
   try {
-    try { fs.unlinkSync(FLAG) } catch { /* already gone */ }
+    try { fs.unlinkSync(FLAG) } catch {}
     res.json({ active: false })
   } catch (err) {
     res.status(500).json({ error: err.message })

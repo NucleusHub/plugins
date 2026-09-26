@@ -1,16 +1,5 @@
-// Adding a discovered title to the watchlist. Goes through the app's own public
-// HTTP surface (`/api/watchlist`) rather than importing the host's api module,
-// so the plugin stays a separate package that happens to be bundled alongside
-// it — the same arrangement In Common has with `/api/auth/in-common`.
-
 import { fetchDetail, posterUrl } from './tmdb.js'
 
-// Build the item body from a discovery candidate, enriched with the detail
-// payload so a title added from here arrives with the same fields the app's own
-// add flow would have filled in — runtime, season/episode counts, the streaming
-// provider are all things the list endpoints don't carry. A detail fetch that
-// fails is not worth failing the add over: the item still lands, and the app's
-// Refresh button fills the rest in later.
 async function buildItem(candidate) {
   const base = {
     title: candidate.title,
@@ -30,9 +19,6 @@ async function buildItem(candidate) {
     return base
   }
 
-  // Prefer the detail payload's genre names: they're the same vocabulary the
-  // host's TMDb source writes, where the list endpoints' `genre_ids` had to be
-  // mapped through a cached lookup that can be missing an id.
   const detailGenres = (detail.genres ?? []).map((g) => g.name).filter(Boolean)
   if (detailGenres.length) base.genres = detailGenres
 

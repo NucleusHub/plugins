@@ -1,10 +1,4 @@
 <script setup>
-// Non-dismissable maintenance alert, shown across every Nucleus app.
-//
-// The signal is a static JSON file (`/maintenance.json`) served by nginx — NOT
-// an app API or socket. That's deliberate: during a rebuild the app servers are
-// the thing going down, but nginx (and this static file) stays up, so the banner
-// keeps showing for the whole outage. Flip it with `infra/maintenance on|off`.
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@core/useI18n.js'
 import AlertTriangleIcon from './assets/icons/alert-triangle.svg?component'
@@ -17,9 +11,6 @@ const active = ref(false)
 const flag = ref(null)
 let timer = null
 
-// The flag carries title/message either as a plain string (legacy infra CLI) or
-// as a { lang: text } map (admin console, translated per language). Resolve to
-// the viewer's locale, then the flag's default language, then any value.
 function pick(field) {
   if (field == null) return ''
   if (typeof field === 'string') return field
@@ -32,14 +23,14 @@ const message = computed(() => pick(flag.value?.message) || t('core.maintenance.
 
 async function poll() {
   try {
+    // Static nginx-served file, so the banner survives app server rebuilds.
     const res = await fetch('/maintenance.json', { cache: 'no-store' })
-    if (!res.ok) { active.value = false; return }   // 204/404 → not in maintenance
+    if (!res.ok) { active.value = false; return }
     const data = await res.json()
     active.value = !!data.active
     flag.value = data
   } catch {
-    // Explicit-flag-only: a failed fetch is NOT treated as maintenance, so a
-    // transient blip never flashes the banner.
+    // A failed fetch is not maintenance; avoids flashing on transient errors.
     active.value = false
   }
 }
@@ -73,11 +64,11 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 2147483000; /* above every app modal/overlay */
+  z-index: 2147483000;
   display: flex;
   justify-content: center;
   padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
-  pointer-events: none; /* let clicks pass through the gutter, not the pill */
+  pointer-events: none;
 }
 
 .mnt-inner {

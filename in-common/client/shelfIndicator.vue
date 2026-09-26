@@ -3,9 +3,6 @@ import { ref, watch } from 'vue'
 import { lookup } from './useInCommon.js'
 import InCommonBadge from './InCommonBadge.vue'
 
-// Shelf book indicator. The host (BookCard.vue) renders this in the card footer
-// row and passes the library entry as `entry`; the book metadata used for
-// overlap matching lives on `entry.book`.
 const props = defineProps({
   entry: { type: Object, required: true },
   variant: { type: String, default: 'default' },

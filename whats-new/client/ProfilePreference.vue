@@ -3,9 +3,6 @@ import { ref } from 'vue'
 import { useI18n } from '@core/useI18n.js'
 import { useAuth } from '@core/auth/useAuth.js'
 
-// "Show update logs" profile preference, contributed to the Profile settings
-// modal through the core extension point (see ./core.js). The auto-open toggle
-// is the inverse of the profile's whatsNew.optOut flag.
 const props = defineProps({
   profile: { type: Object, required: true },
 })
@@ -28,10 +25,10 @@ async function toggle() {
       body: JSON.stringify({ optOut: !next }),
     })
     if (!res.ok) throw new Error()
-    await checkSession()   // keep the shared profile ref in sync
+    await checkSession()
     emit('updated')
   } catch {
-    showUpdates.value = !next   // revert on failure
+    showUpdates.value = !next
   } finally {
     saving.value = false
   }

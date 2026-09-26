@@ -2,20 +2,9 @@
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import AvatarCircle from '@core/auth/AvatarCircle.vue'
 
-// The visible half of In Common: a compact "people" chip that appears on an item
-// only when others also have it. It shows just an icon + count; hovering (or
-// focusing) it reveals a popover listing who, with their avatars.
-//
-// The popover is Teleported to <body> and fixed-positioned from the chip's rect
-// because the host cards are `overflow-hidden` (rounded corners), which would
-// otherwise clip an in-flow popover. A short close delay + keeping it open while
-// the pointer is over the popover makes the hover feel stable across the gap.
 const props = defineProps({
   profiles: { type: Array, default: () => [] },
-  // 'watchlist' | 'shelf' | 'dex' | 'dex-binder' — only tweaks the wording.
   context: { type: String, default: 'watchlist' },
-  // 'default' — indigo tint, for on-card / in-modal placement.
-  // 'overlay' — dark glass, legible sitting on top of a poster/cover image.
   variant: { type: String, default: 'default' },
 })
 
@@ -31,8 +20,6 @@ let closeTimer = null
 const count = computed(() => props.profiles.length)
 const NOUN = { shelf: 'this book', dex: 'this card', 'dex-binder': 'this card' }
 const heading = computed(() => {
-  // Inside a shared binder the interesting fact is that the card is already in
-  // THAT collection, not that some acquaintance owns one somewhere.
   if (props.context === 'dex-binder') {
     const who = count.value === 1 ? 'member' : 'members'
     return `Already in this binder — ${count.value} ${who} have this card`
@@ -74,13 +61,11 @@ function scheduleClose() {
 function cancelClose() {
   clearTimeout(closeTimer)
 }
-// Tap support (touch fires enter but not leave reliably): toggle on click.
 function toggle() {
   if (open.value) { open.value = false; clearTimeout(closeTimer) }
   else openNow()
 }
 
-// Reposition while open; drop the listeners when closed.
 watch(open, (v) => {
   const method = v ? 'addEventListener' : 'removeEventListener'
   window[method]('scroll', updatePos, true)
@@ -154,7 +139,7 @@ onBeforeUnmount(() => {
   font-size: 0.72rem;
   line-height: 1;
   font-weight: 700;
-  color: rgb(79 70 229); /* indigo-600 */
+  color: rgb(79 70 229);
   background: linear-gradient(180deg, rgb(99 102 241 / 0.16), rgb(99 102 241 / 0.1));
   border: 1px solid rgb(99 102 241 / 0.28);
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
@@ -167,7 +152,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 2px 6px rgb(79 70 229 / 0.18);
 }
 :global(.dark) .ic-chip {
-  color: rgb(199 210 254); /* indigo-200 */
+  color: rgb(199 210 254);
   background: linear-gradient(180deg, rgb(129 140 248 / 0.24), rgb(129 140 248 / 0.14));
   border-color: rgb(129 140 248 / 0.35);
 }
@@ -176,8 +161,6 @@ onBeforeUnmount(() => {
   border-color: rgb(129 140 248 / 0.5);
 }
 
-/* Overlay variant — dark glass, sits on top of a poster/cover image. Same in
-   light and dark since it's always over imagery. */
 .ic-chip.ic-overlay,
 :global(.dark) .ic-chip.ic-overlay {
   color: #fff;
@@ -203,7 +186,7 @@ onBeforeUnmount(() => {
 </style>
 
 <style>
-/* Popover is Teleported to <body>, so its styles must be global (not scoped). */
+/* Teleported to <body>, so these styles can't be scoped. */
 .ic-pop {
   position: fixed;
   z-index: 60;
@@ -222,8 +205,7 @@ onBeforeUnmount(() => {
   background: rgb(30 41 59 / 0.96);
   border-color: rgb(148 163 184 / 0.2);
 }
-/* Opacity-only — the popover's transform is used for positioning (translateY
-   when it opens above the chip), so animating transform here would fight it. */
+/* Opacity only: transform is used for positioning. */
 @keyframes ic-pop-in {
   from { opacity: 0; }
 }

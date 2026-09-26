@@ -1,11 +1,4 @@
 <script setup>
-// Presentational "What's New" modal — pure rendering of a feed of announcements
-// into per-app tabs grouped by version. It owns no data-fetching, profile or
-// seen-state logic: the live login modal (WhatsNewModal.vue) wires those in and
-// the Admin preview (admin/WhatsNewView.vue) reuses this same view so what an
-// admin sees is byte-for-byte what users get. Open state is a v-model; dismissal
-// is emitted so the container decides what "dismiss" means (persist seen-state
-// for the live modal, just close for the preview).
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@core/useI18n.js'
 import { useRegistry } from '@core/useRegistry.js'
@@ -14,22 +7,12 @@ import { Icon } from '@core/icons'
 import SparkleIcon from './assets/icons/sparkle.svg?component'
 
 const props = defineProps({
-  // Open/closed (v-model). The overlay + transition live here.
   modelValue: { type: Boolean, default: false },
-  // Feed shape: [{ version, publishedAt, entries:[{ app, version, features }] }].
   announcements: { type: Array, default: () => [] },
-  // Feed's default language, used as the fallback when the viewer's locale is missing.
   defaultLang: { type: String, default: 'en-US' },
-  // Viewer's lastSeenAt (ISO string) — anything newer is flagged NEW. null = only
-  // the single newest release is highlighted.
   seenBaseline: { type: [String, Date], default: null },
-  // Opt-out checkbox state (v-model:opt-out). Ignored in preview mode.
   optOut: { type: Boolean, default: false },
-  // Preview mode: swaps the footer for a non-persisting "close preview" and drops
-  // the opt-out checkbox (an admin isn't dismissing their own changelog).
   preview: { type: Boolean, default: false },
-  // Whether the feed has finished loading — gates the empty state so it doesn't
-  // flash before the fetch resolves.
   loaded: { type: Boolean, default: true },
 })
 const emit = defineEmits(['update:modelValue', 'update:optOut', 'dismiss'])
@@ -43,8 +26,6 @@ const optOutModel = computed({
   set: (v) => emit('update:optOut', v),
 })
 
-// Resolve a { lang: text } map to the viewer's locale, then the feed's default
-// language, then any value — same strategy as MaintenanceBanner.vue.
 function pick(field) {
   if (field == null) return ''
   if (typeof field === 'string') return field
@@ -53,12 +34,8 @@ function pick(field) {
 }
 
 const latestPublishedAt = computed(() => props.announcements[0]?.publishedAt || null)
-// The whole-Nucleus version of the newest published release, shown on top.
 const latestNucleusVersion = computed(() => props.announcements[0]?.version || '')
 
-// "New to you": published more recently than the viewer last dismissed the modal.
-// A never-seen viewer (no baseline) only flags the single newest release so we
-// never show a wall of NEW. This is the signal behind the tab dots and NEW pill.
 function isUnseen(publishedAt) {
   if (!publishedAt) return false
   const base = props.seenBaseline
@@ -66,7 +43,6 @@ function isUnseen(publishedAt) {
   return new Date(publishedAt) > new Date(base)
 }
 
-// App ids carrying an unseen update — used to badge the tab rail.
 const unseenTabIds = computed(() => {
   const s = new Set()
   for (const a of props.announcements) {
@@ -77,8 +53,6 @@ const unseenTabIds = computed(() => {
   return s
 })
 
-// App ids that changed in the newest release (for orienting the default tab even
-// once everything has been seen).
 const latestAppIds = computed(() => {
   const s = new Set()
   for (const e of props.announcements[0]?.entries || [])
@@ -86,10 +60,6 @@ const latestAppIds = computed(() => {
   return s
 })
 
-// ── Tabs (one per app that has entries, plus 'platform') ───────────────────────
-
-// Distinct app ids across all announcements, ordered: platform first, then in
-// registry order, then any leftover (e.g. an app since removed).
 const tabs = computed(() => {
   const ids = new Set()
   for (const a of props.announcements)
@@ -109,8 +79,6 @@ const tabs = computed(() => {
   })
 })
 
-// The tab to land on: the first (in rail order) that carries an unseen update,
-// falling back to the newest release's tab, then the first tab.
 const defaultTabId = computed(() => {
   const list = tabs.value
   if (!list.length) return null
@@ -124,12 +92,8 @@ const activeTab = ref(null)
 watch(tabs, (list) => {
   if (!list.some(tb => tb.id === activeTab.value)) activeTab.value = defaultTabId.value
 }, { immediate: true })
-// Re-orient to the default tab each time the modal (re)opens, so a preview or a
-// re-open never lands on a stale tab from a previous render.
 watch(isOpen, (open) => { if (open) activeTab.value = defaultTabId.value })
 
-// For the active tab: each announcement that carries an entry for this app,
-// newest first, as { version, publishedAt, features }.
 const activeGroups = computed(() => {
   if (!activeTab.value) return []
   const out = []
@@ -168,7 +132,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
     <Transition name="wn-fade">
       <div v-if="isOpen" class="wn-overlay" @click.self="dismiss">
         <div class="wn-panel" role="dialog" aria-modal="true">
-          <!-- Header -->
           <div class="wn-header">
             <div class="wn-spark" aria-hidden="true">
               <SparkleIcon width="20" height="20" />
@@ -186,10 +149,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
             </button>
           </div>
 
-          <!-- Content: vertical app tabs alongside the body -->
           <div class="wn-content">
-            <!-- Tabs — always shown (even for a single app) so each update is
-                 visually tied to the app it belongs to. -->
             <div v-if="tabs.length" class="wn-tabs">
               <button
                 v-for="tb in tabs" :key="tb.id"
@@ -206,7 +166,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
               </button>
             </div>
 
-            <!-- Body -->
             <div class="wn-body">
               <p v-if="loaded && !activeGroups.length" class="wn-empty">{{ t('core.whatsNew.emptyState') }}</p>
 
@@ -233,7 +192,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
             </div>
           </div>
 
-          <!-- Footer -->
           <div class="wn-footer">
             <template v-if="preview">
               <span class="wn-preview-note">Preview only — nothing is saved or shown to users.</span>
@@ -257,7 +215,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 .wn-overlay {
   position: fixed;
   inset: 0;
-  z-index: 2147482000; /* above app UI, below the maintenance banner */
+  z-index: 2147482000; /* below the maintenance banner */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -271,8 +229,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   flex-direction: column;
   width: 100%;
   max-width: 40rem;
-  /* Fixed height so the modal doesn't resize with per-tab content; the body
-     scrolls instead. Capped to the viewport on short screens. */
   height: min(85vh, 44rem);
   border-radius: 1.25rem;
   overflow: hidden;
@@ -311,8 +267,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   padding: 0.1rem 0.45rem;
   border-radius: 0.4rem;
 }
-/* Preview-mode pill in the header, so an admin never mistakes the preview for
-   the live modal. Amber to read as "not real / not published". */
 .wn-preview-badge {
   font-size: 0.68rem;
   font-weight: 700;
@@ -335,7 +289,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 }
 .wn-x:hover { background: rgba(15, 23, 42, 0.06); color: #0f172a; }
 
-/* Content row: vertical tab sidebar + scrollable body. */
 .wn-content {
   display: flex;
   flex: 1;
@@ -343,7 +296,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   overflow: hidden;
 }
 
-/* Vertical tab sidebar. */
 .wn-tabs {
   flex: none;
   display: flex;
@@ -378,7 +330,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 }
 .wn-tab-icon { width: 1rem; height: 1rem; flex: none; }
 
-/* Pulsing dot on a tab that carries an unseen update — the "look here" cue. */
 .wn-tab-dot {
   margin-left: auto;
   flex: none;
@@ -404,7 +355,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 .wn-empty { text-align: center; font-size: 0.9rem; opacity: 0.55; padding: 2.5rem 0; }
 
 .wn-group { margin-bottom: 1.25rem; }
-/* The newest update for the active app tab gets a highlighted card. */
 .wn-group-latest {
   position: relative;
   margin: 0 -0.75rem 1.25rem;
@@ -414,8 +364,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   border: 1px solid rgba(99, 102, 241, 0.22);
   box-shadow: 0 1px 3px rgba(99, 102, 241, 0.12);
 }
-/* The genuinely-newest-to-you update: stronger gradient plus a soft breathing
-   glow so it reads as premium and alive without shouting. */
 .wn-group-new {
   border-color: rgba(99, 102, 241, 0.4);
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.16), rgba(139, 92, 246, 0.1));
@@ -437,8 +385,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   padding: 0.12rem 0.45rem;
   border-radius: 0.4rem;
 }
-/* NEW pill — an animated gradient with a shimmer sweep. Reserved for updates the
-   viewer hasn't seen yet. */
 .wn-new-badge {
   position: relative;
   display: inline-flex;
@@ -531,7 +477,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 }
 .wn-close-btn:hover { background: #4338ca; }
 
-/* Dark theme */
 .dark .wn-panel {
   background: rgba(15, 23, 42, 0.9);
   border-color: rgba(255, 255, 255, 0.1);
@@ -569,9 +514,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 }
 .dark .wn-feature-icon { background: rgba(255, 255, 255, 0.08); }
 
-/* Phone: keep the vertical rail but collapse it to a slim icon-only column so
-   the body gets the width back. Labels reappear on the active tab as a tooltip
-   via title=. */
 @media (max-width: 640px) {
   .wn-panel { height: min(92vh, 44rem); border-radius: 1rem; }
   .wn-tabs {
@@ -591,7 +533,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   .wn-tab-label { display: none; }
   .wn-tab-icon { width: 1.15rem; height: 1.15rem; }
   .wn-body { padding: 0.9rem 1rem 0.5rem; }
-  /* No label to sit beside, so pin the dot to the icon corner. */
   .wn-tab-dot {
     position: absolute;
     top: 0.35rem;
@@ -600,14 +541,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   }
 }
 
-/* Respect reduced-motion: keep the cues, drop the movement. */
 @media (prefers-reduced-motion: reduce) {
   .wn-tab-dot,
   .wn-group-new,
   .wn-new-badge::after { animation: none; }
 }
 
-/* Very narrow: let the footer wrap so the button never overflows. */
 @media (max-width: 380px) {
   .wn-footer { flex-wrap: wrap; gap: 0.6rem; padding: 0.75rem 1rem; }
   .wn-close-btn { width: 100%; margin-left: 0; }

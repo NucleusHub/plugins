@@ -1,21 +1,5 @@
-// Anime search source for Watchlist, powered by Kitsu's public JSON:API
-// (https://kitsu.docs.apiary.io) — free, no API key, and browser-friendly
-// (CORS-open), so it runs entirely client-side alongside Watchlist's built-in
-// TMDb source. Contributed by the `anime-source` plugin.
-//
-// Implements Watchlist's client search-source contract (see
-// apps/watchlist/client/src/api/sources.js):
-//   search(query) -> normalized results [{ key, title, subtitle, poster, type }]
-//   toForm(result) -> partial form fields merged into the add/edit form
-//
-// Self-contained on purpose: no host imports (uses only the browser `fetch`), so
-// the plugin bundles cleanly wherever Watchlist globs it. One request returns
-// everything both search and toForm need, so selecting a result costs no second
-// round-trip.
 const API = 'https://kitsu.io/api/edge/anime'
 
-// Kitsu `subtype` (TV, movie, OVA, ONA, special, music) → Watchlist's two kinds.
-// Only films are "movie"; everything episodic is a "show".
 const typeOf = (a) => (a.subtype === 'movie' ? 'movie' : 'show')
 const titleOf = (a) =>
   a.canonicalTitle || a.titles?.en || a.titles?.en_jp || a.titles?.ja_jp || ''
@@ -53,10 +37,6 @@ export default {
     })
   },
 
-  // Everything is already in the search payload — map it into the form. Mirrors
-  // the built-in TMDb source: title/type/year/poster always; runtime for films;
-  // seasons/episodes/per-season progress for series (Kitsu lists anime as a
-  // single run of N episodes, so seed one season for progress tracking).
   toForm(result) {
     const a = result._raw
     const type = typeOf(a)

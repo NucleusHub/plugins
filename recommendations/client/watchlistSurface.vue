@@ -7,28 +7,13 @@ import { addToWatchlist } from './api.js'
 import { Icon } from '@core/icons'
 import RecCard from './RecCard.vue'
 
-// The For You surface. Mounted by the host either as its own tab (wrapped in
-// views/PluginSurfaceView.vue) or as a panel above the item grid on the main
-// watchlist — same component, told which by `placement`, since the only real
-// difference is how much room it has.
-//
-// Two sections, deliberately in this order:
-//   "Up next"   your own backlog, re-ranked against your recent viewing. Costs
-//               nothing, works offline, and answers the question people
-//               actually have most nights — I own 200 things, what now?
-//   "New to you" titles you don't have, from TMDb. The discovery half; degrades
-//               to an explained gap when there's no API key or the network is
-//               down, without taking the first section with it.
 const props = defineProps({
-  // The viewer's full watchlist, loaded by the host.
   items: { type: Array, default: () => [] },
   placement: { type: String, default: 'tab' },
 })
 const emit = defineEmits(['changed'])
 
 const isPanel = computed(() => props.placement === 'panel')
-// A panel sits above someone's actual list, so it shows one tight row; the tab
-// is the destination and can fill the page.
 const limit = computed(() => (isPanel.value ? 6 : 12))
 
 const type = ref('all')
@@ -38,7 +23,6 @@ const TYPES = [
   { key: 'show', label: 'Shows' },
 ]
 
-// ── The taste profile ────────────────────────────────────────────────────────
 const signalList = computed(() => signals(props.items))
 const affinity = computed(() => genreAffinity(signalList.value))
 const lead = computed(() => topGenres(affinity.value, 4))
@@ -55,20 +39,12 @@ const backlog = computed(() =>
   })
 )
 
-// Nothing finished yet means there's no profile to build — a different problem
-// from "finished things, but none of them are tagged", so they get different
-// explanations.
 const hasWatched = computed(() => signalList.value.length > 0)
 const hasGenres = computed(() => affinity.value.size > 0)
 
-// ── Discovery ────────────────────────────────────────────────────────────────
 const discovered = ref([])
 const discovering = ref(false)
 const discoverError = ref(null)
-// How far into the scored pool the visible window starts. The "show different
-// ones" button advances this rather than re-querying TMDb: the ranking is
-// deterministic, so a fresh round-trip would rebuild the identical list and
-// hand back the identical head of it. Paging is instant and actually different.
 const offset = ref(0)
 const poolSize = ref(0)
 
@@ -101,20 +77,13 @@ async function loadDiscover(force = false) {
   }
 }
 
-// Next windowful. `discover` wraps the offset around the pool, so pressing past
-// the end returns to the top rather than emptying the section.
 function showDifferent() {
   offset.value += limit.value
   loadDiscover(false)
 }
 
-// Only worth offering when there's more in the pool than fits on screen —
-// otherwise the button would just redraw the same cards.
 const canRotate = computed(() => poolSize.value > limit.value)
 
-// One button, two jobs. After a failed lookup it's the retry (a real refetch is
-// exactly what's wanted then); otherwise it pages the pool. With no key, or
-// nothing left to page to, there's no honest job for it and it's disabled.
 const refreshAction = computed(() => {
   if (discoverError.value === 'no-key') return null
   if (discoverError.value) return 'retry'
@@ -135,8 +104,6 @@ function onRefresh() {
   }
 }
 
-// Which pool we're looking at: the titles that seed it and the type filter.
-// When this changes the pool itself is different, so paging starts over.
 const poolKey = computed(() =>
   [
     type.value,
@@ -144,20 +111,12 @@ const poolKey = computed(() =>
   ].join('|')
 )
 
-// What the visible list depends on: the pool, plus the library size — adding or
-// removing an item changes what gets filtered out of the window. Watching the
-// items array itself would re-run on every unrelated edit (a note, a rating on
-// something old).
 const discoverKey = computed(() => `${poolKey.value}|${props.items.length}`)
 
-// Declared first so it runs first: a new pool resets paging, and the reload
-// below then reads the reset offset. Adding a suggestion changes discoverKey but
-// NOT poolKey, so it re-filters the window in place instead of yanking you back
-// to the first page.
+// Must be registered before the discoverKey watcher so the offset resets first.
 watch(poolKey, () => { offset.value = 0 })
 watch(discoverKey, () => loadDiscover(false), { immediate: true })
 
-// ── Adding a suggestion ──────────────────────────────────────────────────────
 const adding = ref(new Set())
 const addFailed = ref(new Set())
 
@@ -167,8 +126,6 @@ async function add(candidate) {
   addFailed.value = new Set([...addFailed.value].filter((k) => k !== candidate.key))
   try {
     await addToWatchlist(candidate)
-    // Drop it locally straight away so the card doesn't linger while the host
-    // reloads; the reload then filters it out for good.
     discovered.value = discovered.value.filter((c) => c.key !== candidate.key)
     emit('changed')
   } catch {
@@ -180,7 +137,6 @@ async function add(candidate) {
   }
 }
 
-// ── Starting something from the backlog ──────────────────────────────────────
 const starting = ref(new Set())
 
 async function start(item) {
@@ -195,8 +151,6 @@ async function start(item) {
     })
     if (res.ok) emit('changed')
   } catch {
-    // The host reload never happens; the card stays put, which is the honest
-    // outcome of a failed write.
   } finally {
     const next = new Set(starting.value)
     next.delete(item._id)
@@ -213,7 +167,6 @@ const cardWrapClass = computed(() =>
 
 <template>
   <section class="glass rounded-2xl p-4 flex flex-col gap-4">
-    <!-- Header: what this is, what it's reading, and the controls -->
     <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
       <div class="min-w-0">
         <h2 class="text-base font-semibold text-slate-900 dark:text-white">For You</h2>
@@ -229,9 +182,6 @@ const cardWrapClass = computed(() =>
         </p>
       </div>
 
-      <!-- Only the type filter lives up here: it's the one control that changes
-           both sections. Anything that acts on a single section sits on that
-           section's own heading. -->
       <div class="inline-flex items-center gap-0.5 bg-black/[0.04] dark:bg-white/5 rounded-xl p-1 shrink-0 self-start sm:self-auto">
         <button
           v-for="tab in TYPES"
@@ -249,14 +199,12 @@ const cardWrapClass = computed(() =>
       </div>
     </div>
 
-    <!-- Nothing to work from yet -->
     <p v-if="!hasWatched" class="text-sm text-slate-500 dark:text-slate-400">
       Once you've finished a few things, this reads their genres — weighted by how recently you
       watched them and how you rated them — and uses that to rank your backlog and find new titles.
     </p>
 
     <template v-else>
-      <!-- ── Up next from your list ──────────────────────────────────────── -->
       <div class="flex flex-col gap-2">
         <div class="flex items-baseline justify-between gap-3">
           <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">Up next from your list</h3>
@@ -290,7 +238,6 @@ const cardWrapClass = computed(() =>
         </div>
       </div>
 
-      <!-- ── New to you ──────────────────────────────────────────────────── -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between gap-3">
           <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">New to you</h3>
@@ -302,8 +249,6 @@ const cardWrapClass = computed(() =>
               :title="REFRESH_TITLE[refreshAction] ?? 'Nothing more to suggest right now'"
               class="nuc-press cursor-pointer h-7 px-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/8 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <!-- The host's own refresh glyph, so this reads as the same kind of
-                   action as the watchlist header's refresh, not a lookalike. -->
               <Icon name="refresh" class="w-3.5 h-3.5" :class="discovering ? 'animate-spin' : ''" />
             </button>
           </div>

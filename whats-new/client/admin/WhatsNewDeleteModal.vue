@@ -3,8 +3,6 @@ import { ref, watch } from 'vue'
 import TemplateModal from '@core/TemplateModal.vue'
 import { Icon } from '@core/icons'
 
-// Confirm + delete a "What's New" announcement. Mirrors the other admin delete
-// modals (UserDeleteModal, GroupDeleteModal) instead of a native confirm().
 const props = defineProps({
   announcement: { type: Object, default: null },
 })
@@ -48,7 +46,6 @@ async function confirm() {
         </p>
       </div>
 
-      <!-- Hard warning -->
       <div class="flex items-start gap-2.5 rounded-xl bg-red-500/10 border border-red-500/30 px-3.5 py-2.5">
         <Icon name="warningTriangle" class="w-4 h-4 mt-0.5 shrink-0 text-red-500" />
         <p class="text-xs font-medium text-red-700 dark:text-red-300 leading-relaxed">

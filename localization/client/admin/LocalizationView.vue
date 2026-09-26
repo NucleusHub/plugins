@@ -1,17 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-// Admin localization management: install/remove languages, enable them per
-// scope (Core / Hub / each app), see completeness, and override individual
-// strings. All state lives in Mongo behind /api/auth/i18n/admin/* — served by
-// this plugin at plugins/localization/server/route.js.
-
 const overview = ref(null)
 const loading = ref(true)
 const error = ref(null)
 const busy = ref(false)
 
-const selectedLang = ref(null)   // language shown in the enable matrix
+const selectedLang = ref(null)
 const installChoice = ref('')
 
 const j = (url, opts) => fetch(url, { credentials: 'include', ...opts })
@@ -42,10 +37,8 @@ onMounted(loadOverview)
 const notInstalled = computed(() =>
   (overview.value?.installable || []).filter(l => !overview.value.installedLanguages.includes(l)))
 
-// A language is enabled if it's on for at least one scope (overview.enabledLanguages).
 const enabledSet = computed(() => new Set(overview.value?.enabledLanguages || []))
 const isEnabled = (l) => enabledSet.value.has(l)
-// Never let the last installed / last enabled language be removed or disabled.
 const canUninstall = computed(() => (overview.value?.installedLanguages.length || 0) > 1)
 const canDisable = computed(() => (overview.value?.enabledLanguages.length || 0) > 1)
 
@@ -77,7 +70,6 @@ async function setDefault(lang) {
   catch (e) { error.value = e.message } finally { busy.value = false }
 }
 
-// Enable matrix for the selected language.
 const scopeRows = computed(() => (overview.value?.scopes || []).map(s => {
   const available = s.availableLangs.includes(selectedLang.value)
   const enabled = s.enabledLangs.includes(selectedLang.value)
@@ -94,13 +86,12 @@ async function toggleEnabled(scope, enabled) {
   } catch (e) { error.value = e.message } finally { busy.value = false }
 }
 
-// ── Overrides editor ─────────────────────────────────────────────────────────
 const ovScope = ref('core')
 const ovLang = ref('en-US')
-const ovKeys = ref([])          // [{ key, base, value, override }]
+const ovKeys = ref([])
 const ovLoading = ref(false)
 const ovFilter = ref('')
-const drafts = ref({})          // key -> in-progress edit value
+const drafts = ref({})
 
 async function loadKeys() {
   ovLoading.value = true
@@ -139,7 +130,6 @@ async function saveOverride(k) {
     <p v-else-if="error" class="text-sm text-red-500 py-3 px-4 rounded-xl bg-red-500/10">{{ error }}</p>
 
     <template v-if="overview">
-      <!-- Installed languages -->
       <section class="rounded-2xl bg-white/60 dark:bg-white/[0.04] border border-white/70 dark:border-white/10 p-5">
         <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/35 mb-3">Installed languages</h2>
         <ul class="flex flex-col divide-y divide-slate-200/60 dark:divide-white/8">
@@ -193,7 +183,6 @@ async function saveOverride(k) {
         <p v-else-if="!notInstalled.length" class="text-xs text-slate-400 dark:text-white/35 mt-3">Every language shipped on disk is installed. Add locale files under <code>apps/&lt;app&gt;/locales/</code> to offer more.</p>
       </section>
 
-      <!-- Enable per scope -->
       <section class="rounded-2xl bg-white/60 dark:bg-white/[0.04] border border-white/70 dark:border-white/10 p-5">
         <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
           <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/35">Enable per app</h2>
@@ -212,12 +201,10 @@ async function saveOverride(k) {
           <li v-for="row in scopeRows" :key="row.scope" class="flex items-center gap-3 py-2.5">
             <span class="text-sm font-medium text-slate-900 dark:text-white flex-1">{{ scopeLabel(row.scope) }}</span>
 
-            <!-- Completeness -->
             <span v-if="!row.available" class="text-[11px] font-medium text-amber-600 dark:text-amber-400">⚠ Unavailable · fallback English</span>
             <span v-else-if="row.comp && row.comp.missing === 0" class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">✓ Complete</span>
             <span v-else-if="row.comp" class="text-[11px] font-medium text-amber-600 dark:text-amber-400">⚠ Missing {{ row.comp.missing }} of {{ row.comp.total }}</span>
 
-            <!-- Enable toggle -->
             <span v-if="selectedLang === 'en-US'" class="shrink-0 text-[11px] font-semibold text-slate-500 dark:text-white/50 bg-slate-500/10 dark:bg-white/10 px-2 py-1 rounded-lg">Base</span>
             <button
               v-else-if="row.available"
@@ -231,7 +218,6 @@ async function saveOverride(k) {
         </ul>
       </section>
 
-      <!-- Overrides -->
       <section class="rounded-2xl bg-white/60 dark:bg-white/[0.04] border border-white/70 dark:border-white/10 p-5">
         <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/35 mb-3">Translation overrides</h2>
         <div class="flex flex-wrap items-center gap-2 mb-3">

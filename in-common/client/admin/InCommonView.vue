@@ -2,10 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { Icon } from '@core/icons'
 
-// Admin control for the In Common scope. A single instance-wide choice —
-// 'network' (everyone) or 'group' (only the viewer's group members) — persisted
-// via the plugin's own /api/auth/in-common/config endpoint. Defaults to
-// 'network', so with no Admin app installed the feature stays network-wide.
 const OPTIONS = [
   {
     value: 'network',

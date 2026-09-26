@@ -1,26 +1,3 @@
-// In Common — server surface. Mounted by the auth-server at /api/auth/in-common
-// (see core/auth-server/routes/index.js), the same way the maintenance and
-// what's-new core plugins are. It lives here rather than in the watchlist/shelf
-// app servers because the "who else has this" question spans identities, groups
-// AND both apps' item collections — and every service shares the one `nucleus`
-// Mongo database, so this router can read all of them off its own connection.
-//
-// Endpoints:
-//   GET   /config              → { scope }                       (any signed-in user)
-//   PATCH /config   { scope }  → { scope }                       (admin only)
-//   POST  /watchlist { items } → { matches: { key: profile[] } } (any signed-in user)
-//   POST  /shelf     { items } → { matches: { key: profile[] } } (any signed-in user)
-//   POST  /dex       { items, binderId? }
-//                              → { matches: { key: profile[] } } (any signed-in user)
-//
-// The lookups only ever return OTHER people (never the caller) and only within
-// the configured scope, so nobody learns about libraries they're not already
-// grouped with (or, in network mode, that the install is deliberately open).
-//
-// /dex takes an optional `binderId`. Passed, the audience narrows from the
-// configured scope to exactly the people that binder is shared with, which
-// answers a different and more useful question while you're looking at one:
-// "is this card already in THIS shared collection?"
 import { Router } from 'express'
 import mongoose from 'mongoose'
 import Profile from '../../../models/Profile.js'
@@ -31,19 +8,13 @@ import { watchlistKeys, bookKeys, cardKeys } from './match.js'
 
 const router = Router()
 
-// Guard against a client flooding a single request. A personal library is far
-// smaller than this; the cap just bounds worst-case work.
 const MAX_ITEMS = 500
 
-// Resolve the active scope, defaulting to 'network' when unset (see the model).
 async function currentScope() {
   const cfg = await InCommonConfig.findOne().lean()
   return cfg?.scope === 'group' ? 'group' : 'network'
 }
 
-// The set of OTHER profile ids the viewer is allowed to see overlaps with.
-//   group   → union of every group the viewer is a member of, minus the viewer
-//   network → every non-guest profile, minus the viewer
 async function audienceIds(meId, scope) {
   const me = String(meId)
   if (scope === 'group') {
@@ -56,7 +27,6 @@ async function audienceIds(meId, scope) {
   return all.map((p) => String(p._id)).filter((id) => id !== me)
 }
 
-// Turn profile-id strings into ObjectIds for a query, skipping any malformed id.
 function toObjectIds(ids) {
   const out = []
   for (const id of ids) {
@@ -65,8 +35,6 @@ function toObjectIds(ids) {
   return out
 }
 
-// Public-safe profile shape the client badge/popover renders (AvatarCircle +
-// avatarUrl consume exactly these fields). Never leaks PINs, emails, etc.
 async function loadProfiles(ids) {
   if (!ids.length) return {}
   const docs = await Profile.find({ _id: { $in: toObjectIds(ids) } })
@@ -92,8 +60,6 @@ function readItems(req) {
   return items.slice(0, MAX_ITEMS).filter((it) => it && it.key != null)
 }
 
-// Given an index (sig/key → Set(profileId)) and the requested items, resolve
-// each item's owners to full profile objects in a single profile lookup.
 async function resolveMatches(items, keysFor, index) {
   const perKey = {}
   const union = new Set()
@@ -117,8 +83,6 @@ async function resolveMatches(items, keysFor, index) {
   return matches
 }
 
-// ── Admin-controlled scope setting ───────────────────────────────────────────
-
 router.get('/config', requireAuth, async (_req, res) => {
   try {
     res.json({ scope: await currentScope() })
@@ -138,8 +102,6 @@ router.patch('/config', requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'server error' })
   }
 })
-
-// ── Watchlist overlap ────────────────────────────────────────────────────────
 
 router.post('/watchlist', requireAuth, async (req, res) => {
   try {
@@ -175,8 +137,6 @@ router.post('/watchlist', requireAuth, async (req, res) => {
   }
 })
 
-// ── Shelf overlap ────────────────────────────────────────────────────────────
-
 router.post('/shelf', requireAuth, async (req, res) => {
   try {
     const items = readItems(req)
@@ -186,9 +146,6 @@ router.post('/shelf', requireAuth, async (req, res) => {
     const audience = await audienceIds(req.profile.profileId, scope)
     if (!audience.length) return res.json({ matches: {} })
 
-    // Each user has their OWN Book document (Shelf stores one Book per work per
-    // profile), so overlap is matched on ISBN / identifiers / title+author —
-    // never on a shared Book _id.
     const rows = await mongoose.connection.db
       .collection('shelfbooks')
       .find(
@@ -214,12 +171,6 @@ router.post('/shelf', requireAuth, async (req, res) => {
   }
 })
 
-// ── Dex overlap ──────────────────────────────────────────────────────────────
-
-// The profiles a shared binder reaches: its owner, everyone it's explicitly
-// shared with, and — for a group binder — every member of that group. Returns
-// null when the binder doesn't exist or the caller isn't part of it, which the
-// route treats as "no audience" rather than leaking the binder's existence.
 async function binderAudience(binderId, meId) {
   if (!mongoose.Types.ObjectId.isValid(binderId)) return null
   const binder = await mongoose.connection.db
@@ -238,7 +189,6 @@ async function binderAudience(binderId, meId) {
   }
 
   const me = String(meId)
-  // Only members may ask about a binder's collection.
   if (!ids.has(me)) return null
   ids.delete(me)
   return [...ids]
@@ -253,16 +203,13 @@ router.post('/dex', requireAuth, async (req, res) => {
     let audience
     if (binderId) {
       audience = await binderAudience(binderId, req.profile.profileId)
-      // Not a member (or no such binder) → answer "nobody", same as an empty
-      // scope. The caller can't tell the two apart, which is the point.
+      // Same answer as an empty scope so binder existence isn't leaked.
       if (!audience) return res.json({ matches: {} })
     } else {
       audience = await audienceIds(req.profile.profileId, await currentScope())
     }
     if (!audience.length) return res.json({ matches: {} })
 
-    // Dex's catalog is one shared, immutable card database, so every collection
-    // row points at the same cardId — an exact join, no fuzzy matching needed.
     const rows = await mongoose.connection.db
       .collection('dexcollectionitems')
       .find(

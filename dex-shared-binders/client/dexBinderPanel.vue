@@ -3,13 +3,6 @@ import { ref, watch, computed } from 'vue'
 import AvatarCircle from '@core/auth/AvatarCircle.vue'
 import { Icon, Spinner } from '@core/icons'
 
-// The share panel, mounted by Dex inside a binder's own settings dialog (Dex
-// globs `client/dexBinderPanel.vue` from plugins targeting `dex`, then renders
-// it under a "Sharing" tab). Everything sharing-related lives here, so removing
-// the plugin removes the whole surface with it.
-//
-// Roles read as what they let you do, not as abstract tiers — the description
-// under each is the actual capability, matching Dex's binderAccess table.
 const props = defineProps({
   binder: { type: Object, default: null },
 })
@@ -27,7 +20,6 @@ const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
 const data = ref(null)
-// Working copy: [{ profileId, name, …, grant }]. Saved as a whole list.
 const shares = ref([])
 const adding = ref(false)
 const search = ref('')
@@ -69,20 +61,15 @@ async function persist() {
       body: JSON.stringify({ shares: shares.value.map((s) => ({ profileId: s.profileId, role: s.grant })) }),
     })
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`)
-    // The binder's `shared` flag may have flipped, which changes how it renders
-    // in the list — let the host refresh it.
     emit('saved', { ...props.binder, shared: shares.value.length > 0 || !!data.value?.group })
   } catch (e) {
     error.value = e.message
-    await load() // don't leave the panel showing a state the server rejected
+    await load()
   } finally {
     saving.value = false
   }
 }
 
-// Contributor, not viewer: adding a person to a binder means letting them slot
-// cards in and out — that's the point of sharing one. Dropping to Viewer is the
-// deliberate act, so it's the dropdown's job, not the default's.
 function addPerson(person) {
   shares.value = [...shares.value, { ...person, grant: 'contributor' }]
   adding.value = false
@@ -113,8 +100,6 @@ const SELECT =
     </div>
 
     <template v-else-if="data">
-      <!-- A group binder isn't shared person by person: membership IS the grant,
-           and only a Nucleus admin controls it. Say so plainly. -->
       <div
         v-if="data.group"
         class="rounded-xl border border-indigo-400/30 bg-indigo-500/10 p-3 flex items-start gap-2.5 text-sm"
@@ -129,7 +114,6 @@ const SELECT =
         </p>
       </div>
 
-      <!-- Owner -->
       <div v-if="data.owner" class="flex items-center gap-3">
         <AvatarCircle :profile="{ _id: data.owner.profileId, ...data.owner }" :size="32" />
         <div class="min-w-0 flex-1">
@@ -138,7 +122,6 @@ const SELECT =
         </div>
       </div>
 
-      <!-- Grants -->
       <div v-if="shares.length" class="flex flex-col gap-2">
         <div v-for="s in shares" :key="s.profileId" class="flex items-center gap-3">
           <AvatarCircle :profile="{ _id: s.profileId, ...s }" :size="32" />
@@ -167,7 +150,6 @@ const SELECT =
         This binder is private. Share it with someone to let them add and remove cards.
       </p>
 
-      <!-- Add -->
       <template v-if="canManage">
         <button
           v-if="!adding"
@@ -205,7 +187,6 @@ const SELECT =
           </button>
         </div>
 
-        <!-- What the roles actually mean, stated once. -->
         <dl class="mt-1 grid gap-1 text-xs text-slate-500 dark:text-slate-400">
           <div v-for="r in ROLES" :key="r.key" class="flex gap-2">
             <dt class="font-medium text-slate-600 dark:text-slate-300 w-20 shrink-0">{{ r.label }}</dt>

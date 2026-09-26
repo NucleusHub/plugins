@@ -1,15 +1,3 @@
-// TMDb access for the For You surface. Deliberately the plugin's own thin
-// client rather than an import of the host's `@/api/tmdb.js`: this plugin talks
-// to endpoints the host has no use for (/recommendations, /discover, the genre
-// lists), and keeping the dependency at "the same public API key the host is
-// already configured with" is the same arrangement In Common has with
-// /api/auth/in-common.
-//
-// The key is the host app's build-time `VITE_TMDB_API_KEY`. When it's missing
-// every call here throws `NoKeyError`, which the surface reports as "the
-// discovery half is unavailable" — the local half of the recommendations never
-// touches the network and keeps working.
-
 const BASE = 'https://api.themoviedb.org/3'
 const KEY = import.meta.env.VITE_TMDB_API_KEY
 
@@ -34,11 +22,6 @@ async function get(path, params = {}) {
   return res.json()
 }
 
-// ── Genre maps ───────────────────────────────────────────────────────────────
-// TMDb hands back bare `genre_ids` on list endpoints and takes ids on /discover,
-// while the watchlist stores genre *names*. These two lists are the bridge, and
-// they change about never — cached for a month so a normal session spends no
-// requests on them.
 const GENRES_KEY = 'watchlist-recs:genres'
 const GENRES_TTL = 30 * 24 * 60 * 60 * 1000
 
@@ -52,7 +35,6 @@ async function fetchGenreMaps() {
   }
 }
 
-// { movie: {id: name}, tv: {id: name} } — resolved once per page load.
 export function genreMaps() {
   if (genresPromise) return genresPromise
   genresPromise = (async () => {
@@ -60,23 +42,19 @@ export function genreMaps() {
       const cached = JSON.parse(localStorage.getItem(GENRES_KEY) || 'null')
       if (cached?.at && Date.now() - cached.at < GENRES_TTL && cached.maps?.movie) return cached.maps
     } catch {
-      // fall through to a fetch
     }
     const maps = await fetchGenreMaps()
     try {
       localStorage.setItem(GENRES_KEY, JSON.stringify({ at: Date.now(), maps }))
     } catch {
-      // storage full or blocked — the in-memory promise still serves this session
     }
     return maps
   })()
-  // Don't cache a rejection: a transient failure shouldn't disable genre names
-  // for the rest of the session.
+  // Don't cache a rejection.
   genresPromise.catch(() => { genresPromise = null })
   return genresPromise
 }
 
-// Name → id, per media type. Built from the same maps, for /discover.
 export async function genreIdsByName(mediaType) {
   const maps = await genreMaps()
   const out = new Map()
@@ -84,18 +62,10 @@ export async function genreIdsByName(mediaType) {
   return out
 }
 
-// ── Candidate sources ────────────────────────────────────────────────────────
-
-// "More like this" for one title the user finished. The single best signal TMDb
-// offers, because it's built from what other people actually watched together
-// rather than from genre overlap alone.
 export function fetchSimilarTo(tmdbId, mediaType) {
   return get(`/${mediaType}/${tmdbId}/recommendations`).then((d) => d.results ?? [])
 }
 
-// Genre-led backfill, for when the seeds are few or their recommendations are
-// all already on the list. `voteCountGte` keeps the long tail of obscure
-// entries out — TMDb will happily return a 10.0-rated title with four votes.
 export function discoverByGenres(mediaType, genreIds, { voteCountGte = 200, page = 1 } = {}) {
   if (!genreIds.length) return Promise.resolve([])
   return get(`/discover/${mediaType}`, {
@@ -107,8 +77,6 @@ export function discoverByGenres(mediaType, genreIds, { voteCountGte = 200, page
   }).then((d) => d.results ?? [])
 }
 
-// Full detail for a title the user is adding, so the new item lands with the
-// same fields the app's own add flow would have filled in.
 export function fetchDetail(tmdbId, mediaType) {
   return get(`/${mediaType}/${tmdbId}`)
 }

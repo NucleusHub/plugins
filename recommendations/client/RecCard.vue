@@ -1,29 +1,18 @@
 <script setup>
-// One suggestion. Used for both sections of the For You surface — a title from
-// your own backlog and one discovered on TMDb differ in what the button does,
-// not in what they look like, so they share a card.
-//
-// The "why" line is the point of the component: a ranked list nobody can
-// interrogate is indistinguishable from a random one.
 const props = defineProps({
   title: { type: String, required: true },
   year: { type: [Number, String], default: null },
   poster: { type: String, default: null },
   rating: { type: Number, default: null },
   genres: { type: Array, default: () => [] },
-  // { genres: string[], because: string[] } — either half may be empty.
   why: { type: Object, default: null },
   actionLabel: { type: String, required: true },
   busy: { type: Boolean, default: false },
-  // Last attempt at the action failed; the button becomes a visible retry.
   danger: { type: Boolean, default: false },
-  // Panel placement: a fixed-width card in a scrolling row instead of a grid cell.
   compact: { type: Boolean, default: false },
 })
 defineEmits(['action'])
 
-// Prefer naming the finished titles that led here ("because you watched …") —
-// it's more concrete than the genres, which are already visible as pills.
 const whyText = () => {
   if (!props.why) return null
   if (props.why.because?.length) return `Because you watched ${props.why.because.join(' and ')}`

@@ -1,18 +1,14 @@
 import { Router } from 'express'
 import mongoose from 'mongoose'
 import WhatsNewAnnouncement from './WhatsNewAnnouncement.js'
-// Core auth-server models/middleware live three levels up — this plugin's
-// server dir is mounted at /app/plugins/whats-new/server in the auth-server.
 import Profile from '../../../models/Profile.js'
 import { requireAuth, requireAdmin } from '../../../middleware/auth.js'
 
-// The base/fallback language. Inlined (not imported from the localization
-// plugin) so What's New keeps working when localization isn't installed.
+// Inlined so What's New works without the localization plugin.
 const BASE_LANG = 'en-US'
 
 const router = Router()
 
-// Mongoose Map (or lean plain object) → plain object for JSON responses.
 const mapObj = (m) => (m instanceof Map ? Object.fromEntries(m) : (m || {}))
 
 function serializeAnnouncement(a) {
@@ -36,8 +32,6 @@ function serializeAnnouncement(a) {
 }
 
 async function installedLanguages() {
-  // The LocaleConfig model is only registered when the localization plugin is
-  // installed. Absent → English-only (multi-language content is a no-op).
   const LocaleConfig = mongoose.models.LocaleConfig
   const cfg = LocaleConfig ? await LocaleConfig.findOne().lean() : null
   const langs = cfg?.installedLanguages?.length ? cfg.installedLanguages : [BASE_LANG]
@@ -45,7 +39,6 @@ async function installedLanguages() {
   return { langs, defaultLang }
 }
 
-// Coerce a client-supplied entries array into the stored shape, dropping junk.
 function sanitizeEntries(raw) {
   if (!Array.isArray(raw)) return []
   return raw
@@ -63,11 +56,6 @@ function sanitizeEntries(raw) {
     }))
 }
 
-// ── User-facing feed ──────────────────────────────────────────────────────────
-
-// The cumulative changelog: every published announcement, newest first. The
-// client compares the latest publishedAt against the viewer's
-// profile.whatsNew.lastSeenAt to decide whether to auto-open.
 router.get('/feed', requireAuth, async (_req, res) => {
   try {
     const { langs, defaultLang } = await installedLanguages()
@@ -84,8 +72,6 @@ router.get('/feed', requireAuth, async (_req, res) => {
   }
 })
 
-// Mark the changelog as seen up to now — stops it auto-opening until the next
-// announcement is published.
 router.post('/seen', requireAuth, async (req, res) => {
   try {
     await Profile.updateOne(
@@ -98,7 +84,6 @@ router.post('/seen', requireAuth, async (req, res) => {
   }
 })
 
-// Permanent opt-out (or re-enable) of the What's New modal.
 router.post('/opt-out', requireAuth, async (req, res) => {
   try {
     const optOut = !!req.body?.optOut
@@ -111,8 +96,6 @@ router.post('/opt-out', requireAuth, async (req, res) => {
     res.status(500).json({ error: err.message })
   }
 })
-
-// ── Announcements (admin) ──────────────────────────────────────────────────────
 
 router.get('/announcements', requireAdmin, async (_req, res) => {
   try {
@@ -171,13 +154,12 @@ router.delete('/announcements/:id', requireAdmin, async (req, res) => {
   }
 })
 
-// Publish: stamp publishedAt only on first publish, so editing/re-publishing an
-// existing note never re-pops the modal for users who already saw it.
 router.post('/announcements/:id/publish', requireAdmin, async (req, res) => {
   try {
     const a = await WhatsNewAnnouncement.findById(req.params.id)
     if (!a) return res.status(404).json({ error: 'Announcement not found' })
     a.published = true
+    // Stamp only once so re-publishing doesn't re-open the modal for everyone.
     if (!a.publishedAt) a.publishedAt = new Date()
     await a.save()
     res.json(serializeAnnouncement(a))

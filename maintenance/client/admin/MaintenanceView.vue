@@ -1,12 +1,6 @@
 <script setup>
 import { ref, computed, reactive, onMounted } from 'vue'
 
-// Admin control for the platform-wide maintenance banner. Presets (and a custom
-// message) are translated per installed language; raising the banner writes the
-// static flag file that nginx serves at /maintenance.json, so it keeps showing
-// — already translated — even while the app servers are being rebuilt. See
-// core/auth-server/routes/maintenance.js and core/MaintenanceBanner.vue.
-
 const status = ref(null)
 const loading = ref(true)
 const error = ref(null)
@@ -23,11 +17,9 @@ const langLabel = (tag) => {
 const langs = computed(() => status.value?.installedLanguages || ['en-US'])
 const baseLang = computed(() => status.value?.defaultLanguage || 'en-US')
 
-// Language currently shown in the translation editors (shared across them).
 const editLang = ref('en-US')
 
-// ── Raise-banner form ─────────────────────────────────────────────────────────
-const mode = ref('preset')          // 'preset' | 'custom'
+const mode = ref('preset')
 const selectedPreset = ref('')
 const eta = ref('')
 const custom = reactive({ title: {}, message: {} })
@@ -42,7 +34,6 @@ const fillEta = (tpl, e) => String(tpl ?? '').replace(/\{eta\}/g, e).replace(/%E
 
 const activePreset = computed(() => status.value?.presets.find(p => p.key === selectedPreset.value) || null)
 
-// Live preview of what the banner will say in the editor language.
 const preview = computed(() => {
   const e = fmtEta(eta.value)
   const src = mode.value === 'custom' ? custom : activePreset.value
@@ -89,8 +80,6 @@ async function turnOff() {
   } catch (e) { error.value = e.message } finally { busy.value = false }
 }
 
-// ── Preset editor ─────────────────────────────────────────────────────────────
-// `draft` is the preset being edited/created; null when the editor is closed.
 const draft = ref(null)
 const isNew = computed(() => draft.value && !draft.value._id)
 
@@ -145,7 +134,6 @@ const presetTitle = (p) => p.title?.[baseLang.value] || p.title?.['en-US'] || Ob
     <p v-else-if="error" class="text-sm text-red-500 py-3 px-4 rounded-xl bg-red-500/10">{{ error }}</p>
 
     <template v-if="status">
-      <!-- Current state -->
       <section
         class="rounded-2xl border p-5"
         :class="status.active
@@ -177,7 +165,6 @@ const presetTitle = (p) => p.title?.[baseLang.value] || p.title?.['en-US'] || Ob
         </div>
       </section>
 
-      <!-- Raise the banner -->
       <section class="rounded-2xl bg-white/60 dark:bg-white/[0.04] border border-white/70 dark:border-white/10 p-5">
         <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/35 mb-3">Raise the banner</h2>
 
@@ -203,7 +190,6 @@ const presetTitle = (p) => p.title?.[baseLang.value] || p.title?.['en-US'] || Ob
           </label>
         </div>
 
-        <!-- Custom-message translation editor -->
         <div v-if="mode === 'custom'" class="mb-4">
           <div class="flex gap-1 bg-black/5 dark:bg-white/8 rounded-xl p-1 w-max mb-3">
             <button
@@ -219,7 +205,6 @@ const presetTitle = (p) => p.title?.[baseLang.value] || p.title?.['en-US'] || Ob
           </div>
         </div>
 
-        <!-- Preview -->
         <div class="rounded-xl bg-amber-500/10 border border-amber-500/30 px-4 py-3 mb-4">
           <p class="text-[10px] font-bold uppercase tracking-wider text-amber-700/70 dark:text-amber-300/60 mb-1">Preview · {{ editLang }}</p>
           <p class="text-sm font-bold text-amber-900 dark:text-amber-200">{{ preview.title || '—' }}</p>
@@ -233,7 +218,6 @@ const presetTitle = (p) => p.title?.[baseLang.value] || p.title?.['en-US'] || Ob
         >{{ status.active ? 'Update banner' : 'Turn on banner' }}</button>
       </section>
 
-      <!-- Presets -->
       <section class="rounded-2xl bg-white/60 dark:bg-white/[0.04] border border-white/70 dark:border-white/10 p-5">
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/35">Presets</h2>
@@ -257,7 +241,6 @@ const presetTitle = (p) => p.title?.[baseLang.value] || p.title?.['en-US'] || Ob
           </li>
         </ul>
 
-        <!-- Inline editor -->
         <div v-if="draft" class="mt-4 rounded-xl border border-indigo-500/30 bg-indigo-500/[0.04] p-4 flex flex-col gap-3">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ isNew ? 'New preset' : `Edit “${draft.key}”` }}</h3>

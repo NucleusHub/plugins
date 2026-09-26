@@ -1,9 +1,5 @@
 import MaintenancePreset from './MaintenancePreset.js'
 
-// Shipped maintenance-banner presets, mirroring the wording of the legacy
-// infra/maintenance CLI, translated to the languages that ship on disk. Seeded
-// once (builtin) so the Admin Console always has a working default set; admins
-// can edit them and add their own. {eta} is filled when the banner is raised.
 const BUILTIN_PRESETS = [
   {
     key: 'update', order: 1,
@@ -39,9 +35,6 @@ const BUILTIN_PRESETS = [
   },
 ]
 
-// Run by the auth-server on boot (see core/auth-server/serverPlugins.js). Seeds
-// the built-in presets once — by key, so re-runs are idempotent and never
-// clobber an admin's edits (only fills missing ones).
 export default async function migrate() {
   for (const p of BUILTIN_PRESETS) {
     const exists = await MaintenancePreset.findOne({ key: p.key })
