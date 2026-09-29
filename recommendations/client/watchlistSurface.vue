@@ -4,6 +4,7 @@ import { signals, genreAffinity, topGenres, rankBacklog } from './taste.js'
 import { discover, clearDiscoverCache } from './discover.js'
 import { NoKeyError, posterUrl } from './tmdb.js'
 import { addToWatchlist } from './api.js'
+import { useHost } from './host.js'
 import { Icon } from '@core/icons'
 import RecCard from './RecCard.vue'
 
@@ -143,13 +144,8 @@ async function start(item) {
   if (starting.value.has(item._id)) return
   starting.value = new Set(starting.value).add(item._id)
   try {
-    const res = await fetch(`/api/watchlist/${item._id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({ status: 'watching' }),
-    })
-    if (res.ok) emit('changed')
+    await useHost().updateItem(item._id, { status: 'watching' })
+    emit('changed')
   } catch {
   } finally {
     const next = new Set(starting.value)

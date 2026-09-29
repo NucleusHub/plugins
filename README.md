@@ -165,6 +165,14 @@ the header, sidebar and nav — a surface never renders app chrome itself.
 
 `recommendations` is the reference example.
 
+**iOS app.** The Watchlist iOS app can't glob `plugins/`; it installs a surface
+from the marketplace as one self-contained module, named by the declaration's
+`"bundle"` key. Its default export is the declaration plus `component` and
+`connect(host)` (the app passes `createItem`, `updateItem`, `tmdbKey`), and it
+reads Vue from `globalThis.__nucleusVue`. `recommendations` builds its bundle
+with `npm run build:native`; commit the output, since the marketplace reads it
+straight from the checkout.
+
 The current plugin API version is defined in
 `infra/plugin-runtime/constants.js`. See `infra/nucleus-docs/PLUGINS.md` for the
 full architecture.

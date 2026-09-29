@@ -15,7 +15,8 @@
       "path": "for-you",
       "label": "For You",
       "placements": ["tab", "panel"],
-      "defaultPlacement": "tab"
+      "defaultPlacement": "tab",
+      "bundle": "client/native/watchlistSurface.js"
     }
   }
 }

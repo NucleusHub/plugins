@@ -1,4 +1,5 @@
 import { fetchDetail, posterUrl } from './tmdb.js'
+import { useHost } from './host.js'
 
 async function buildItem(candidate) {
   const base = {
@@ -44,13 +45,5 @@ async function buildItem(candidate) {
 }
 
 export async function addToWatchlist(candidate) {
-  const body = await buildItem(candidate)
-  const res = await fetch('/api/watchlist', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'same-origin',
-    body: JSON.stringify(body),
-  })
-  if (!res.ok) throw new Error(`Add failed (${res.status})`)
-  return res.json()
+  return useHost().createItem(await buildItem(candidate))
 }

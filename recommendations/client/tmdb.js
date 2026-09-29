@@ -1,19 +1,21 @@
+import { useHost } from './host.js'
+
 const BASE = 'https://api.themoviedb.org/3'
-const KEY = import.meta.env.VITE_TMDB_API_KEY
 
 export class NoKeyError extends Error {
   constructor() {
-    super('VITE_TMDB_API_KEY not set')
+    super('No TMDb API key')
     this.name = 'NoKeyError'
   }
 }
 
-export const hasKey = () => !!KEY
+export const hasKey = () => !!useHost().tmdbKey()
 
 async function get(path, params = {}) {
-  if (!KEY) throw new NoKeyError()
+  const key = useHost().tmdbKey()
+  if (!key) throw new NoKeyError()
   const url = new URL(`${BASE}${path}`)
-  url.searchParams.set('api_key', KEY)
+  url.searchParams.set('api_key', key)
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v))
   }

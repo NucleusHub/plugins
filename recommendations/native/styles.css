@@ -1,0 +1,8 @@
+/* Only the utilities the plugin uses: the app already ships preflight and its
+   own classes (glass, nuc-press, no-scrollbar), and scans none of this code. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../client";
+
+@custom-variant dark (&:where(.dark, .dark *));
