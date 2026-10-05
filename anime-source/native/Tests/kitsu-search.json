@@ -1,0 +1,216 @@
+{
+ "data": [
+  {
+   "id": "1",
+   "attributes": {
+    "canonicalTitle": "Cowboy Bebop",
+    "titles": {
+     "en": "Cowboy Bebop",
+     "en_jp": "Cowboy Bebop",
+     "ja_jp": "\u30ab\u30a6\u30dc\u30fc\u30a4\u30d3\u30d0\u30c3\u30d7"
+    },
+    "startDate": "1998-04-03",
+    "subtype": "TV",
+    "episodeCount": 26,
+    "episodeLength": 25,
+    "posterImage": {
+     "tiny": "https://media.kitsu.app/anime/poster_images/1/tiny.jpg",
+     "large": "https://media.kitsu.app/anime/poster_images/1/large.jpg",
+     "small": "https://media.kitsu.app/anime/poster_images/1/small.jpg",
+     "medium": "https://media.kitsu.app/anime/poster_images/1/medium.jpg",
+     "original": "https://media.kitsu.app/anime/poster_images/1/original.jpg",
+     "meta": {
+      "dimensions": {
+       "tiny": {
+        "width": 110,
+        "height": 156
+       },
+       "large": {
+        "width": 550,
+        "height": 780
+       },
+       "small": {
+        "width": 284,
+        "height": 402
+       },
+       "medium": {
+        "width": 390,
+        "height": 554
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "2",
+   "attributes": {
+    "canonicalTitle": "Cowboy Bebop: Knockin' on Heaven's Door",
+    "titles": {
+     "en": "Cowboy Bebop: The Movie",
+     "en_jp": "Cowboy Bebop: Tengoku no Tobira",
+     "en_us": "Cowboy Bebop: Knockin' on Heaven's Door",
+     "ja_jp": "\u30ab\u30a6\u30dc\u30fc\u30a4\u30d3\u30d0\u30c3\u30d7\u5929\u56fd\u306e\u6249"
+    },
+    "startDate": "2001-09-01",
+    "subtype": "movie",
+    "episodeCount": 1,
+    "episodeLength": 114,
+    "posterImage": {
+     "tiny": "https://media.kitsu.app/anime/poster_images/2/tiny.jpg",
+     "large": "https://media.kitsu.app/anime/poster_images/2/large.jpg",
+     "small": "https://media.kitsu.app/anime/poster_images/2/small.jpg",
+     "medium": "https://media.kitsu.app/anime/poster_images/2/medium.jpg",
+     "original": "https://media.kitsu.app/anime/poster_images/2/original.jpg",
+     "meta": {
+      "dimensions": {
+       "tiny": {
+        "width": 110,
+        "height": 156
+       },
+       "large": {
+        "width": 550,
+        "height": 780
+       },
+       "small": {
+        "width": 284,
+        "height": 402
+       },
+       "medium": {
+        "width": 390,
+        "height": 554
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "3424",
+   "attributes": {
+    "canonicalTitle": "Cowboy Bebop: Yose Atsume Blues",
+    "titles": {
+     "en": "Cowboy Bebop Session XX",
+     "en_jp": "Cowboy Bebop: Yose Atsume Blues",
+     "en_us": "Cowboy Bebop Session XX",
+     "ja_jp": "\u30ab\u30a6\u30dc\u30fc\u30a4\u30d3\u30d0\u30c3\u30d7 \u3088\u305b\u3042\u3064\u3081\u30d6\u30eb\u30fc\u30b9"
+    },
+    "startDate": "1998-06-26",
+    "subtype": "special",
+    "episodeCount": 1,
+    "episodeLength": 27,
+    "posterImage": {
+     "tiny": "https://media.kitsu.app/anime/poster_images/3424/tiny.jpg",
+     "large": "https://media.kitsu.app/anime/poster_images/3424/large.jpg",
+     "small": "https://media.kitsu.app/anime/poster_images/3424/small.jpg",
+     "medium": "https://media.kitsu.app/anime/poster_images/3424/medium.jpg",
+     "original": "https://media.kitsu.app/anime/poster_images/3424/original.jpg",
+     "meta": {
+      "dimensions": {
+       "tiny": {
+        "width": 110,
+        "height": 156
+       },
+       "large": {
+        "width": 550,
+        "height": 780
+       },
+       "small": {
+        "width": 284,
+        "height": 402
+       },
+       "medium": {
+        "width": 390,
+        "height": 554
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "7604",
+   "attributes": {
+    "canonicalTitle": "Cowboy Bebop: Ein no Natsuyasumi",
+    "titles": {
+     "en": "Ein's Summer Vacation",
+     "en_jp": "Cowboy Bebop: Ein no Natsuyasumi",
+     "en_us": "Ein's Summer Vacation",
+     "ja_jp": "\u30a2\u30a4\u30f3\u306e\u306a\u3064\u3084\u3059\u307f"
+    },
+    "startDate": "2012-12-21",
+    "subtype": "special",
+    "episodeCount": 1,
+    "episodeLength": 1,
+    "posterImage": {
+     "tiny": "https://media.kitsu.app/anime/poster_images/7604/tiny.jpg",
+     "large": "https://media.kitsu.app/anime/poster_images/7604/large.jpg",
+     "small": "https://media.kitsu.app/anime/poster_images/7604/small.jpg",
+     "medium": "https://media.kitsu.app/anime/poster_images/7604/medium.jpg",
+     "original": "https://media.kitsu.app/anime/poster_images/7604/original.jpg",
+     "meta": {
+      "dimensions": {
+       "tiny": {
+        "width": 110,
+        "height": 156
+       },
+       "large": {
+        "width": 550,
+        "height": 780
+       },
+       "small": {
+        "width": 284,
+        "height": 402
+       },
+       "medium": {
+        "width": 390,
+        "height": 554
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "13811",
+   "attributes": {
+    "canonicalTitle": "Blade Runner: Black Out 2022",
+    "titles": {
+     "en_jp": "Blade Runner: Black Out 2022",
+     "ja_jp": "BLADE RUNNER BLACK OUT 2022"
+    },
+    "startDate": "2017-09-26",
+    "subtype": "ONA",
+    "episodeCount": 1,
+    "episodeLength": 16,
+    "posterImage": {
+     "tiny": "https://media.kitsu.app/anime/poster_images/13811/tiny.jpg",
+     "large": "https://media.kitsu.app/anime/poster_images/13811/large.jpg",
+     "small": "https://media.kitsu.app/anime/poster_images/13811/small.jpg",
+     "medium": "https://media.kitsu.app/anime/poster_images/13811/medium.jpg",
+     "original": "https://media.kitsu.app/anime/poster_images/13811/original.png",
+     "meta": {
+      "dimensions": {
+       "tiny": {
+        "width": 110,
+        "height": 156
+       },
+       "large": {
+        "width": 550,
+        "height": 780
+       },
+       "small": {
+        "width": 284,
+        "height": 402
+       },
+       "medium": {
+        "width": 390,
+        "height": 554
+       }
+      }
+     }
+    }
+   }
+  }
+ ]
+}
