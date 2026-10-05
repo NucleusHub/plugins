@@ -7,6 +7,8 @@ struct JumpBackInView: View {
     let titles: [PluginTitle]
     let canResume: Bool
     let resume: @MainActor (String) -> Void
+    let resetActions: @MainActor (String) -> [TitleAction]
+    let perform: @MainActor (String, String) -> Void
     @State private var current: String?
 
     var body: some View {
@@ -20,7 +22,7 @@ struct JumpBackInView: View {
                 ScrollView(.horizontal) {
                     LazyHStack(spacing: 0) {
                         ForEach(titles) { title in
-                            JumpCard(title: title, resume: resume)
+                            JumpCard(title: title, resume: resume, actions: resetActions(title.id), perform: perform)
                                 .padding(.horizontal, 16)
                                 .containerRelativeFrame(.horizontal)
                                 .id(title.id)
@@ -53,6 +55,9 @@ struct JumpBackInView: View {
 private struct JumpCard: View {
     let title: PluginTitle
     let resume: @MainActor (String) -> Void
+    let actions: [TitleAction]
+    let perform: @MainActor (String, String) -> Void
+    @State private var confirming: TitleAction?
 
     var body: some View {
         Button {
@@ -90,6 +95,32 @@ private struct JumpCard: View {
         }
         .buttonStyle(NucleusPressStyle())
         .accessibilityLabel(Text("Continue watching \(title.title)"))
+        .overlay(alignment: .topTrailing) {
+            if !actions.isEmpty {
+                Menu {
+                    ForEach(actions) { action in
+                        Button(action.title, role: action.isDestructive ? .destructive : nil) {
+                            if action.isDestructive { confirming = action } else { perform(title.id, action.id) }
+                        }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Nucleus.secondaryText)
+                        .frame(width: 36, height: 30)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityLabel(Text("Reset progress"))
+            }
+        }
+        .confirmationDialog(Text(verbatim: confirming?.title ?? ""), isPresented: Binding(get: { confirming != nil }, set: { if !$0 { confirming = nil } }),
+                            titleVisibility: .visible) {
+            if let action = confirming {
+                Button(action.title, role: .destructive) { perform(title.id, action.id) }
+            }
+        } message: {
+            Text("This can't be undone.")
+        }
     }
 
     private var subtitle: String {

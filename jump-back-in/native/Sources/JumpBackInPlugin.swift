@@ -30,6 +30,7 @@ struct JumpBackInSection: HomeSection {
 
     @MainActor
     func view(_ context: HomeSectionContext) -> AnyView {
-        AnyView(JumpBackInView(titles: Self.pick(context.titles), canResume: context.canResume, resume: context.resume))
+        AnyView(JumpBackInView(titles: Self.pick(context.titles), canResume: context.canResume, resume: context.resume,
+                       resetActions: context.resetActions, perform: context.perform))
     }
 }
