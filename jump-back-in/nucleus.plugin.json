@@ -1,0 +1,10 @@
+{
+  "id": "jump-back-in",
+  "name": "Jump back in",
+  "description": "Puts the last few titles you were watching at the top of the Watchlist, one card at a time with dots under them. Tap one to open it in the in-app browser right where you left off.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "watchlist",
+  "crossApp": false,
+  "author": "Nucleus"
+}
