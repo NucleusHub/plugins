@@ -173,6 +173,21 @@ reads Vue from `globalThis.__nucleusVue`. `recommendations` builds its bundle
 with `npm run build:native`; commit the output, since the marketplace reads it
 straight from the checkout.
 
+### Native (Swift) plugins
+
+A plugin can also ship a Swift build, for native apps. `anime-source` is the reference example:
+
+| File | What it is |
+|---|---|
+| `Package.swift` | A SwiftPM package whose one target reads `nucleus.plugin.json` as a resource, so Node and Swift share the manifest. |
+| `native/Sources/…` | A type conforming to `Plugin` (from `nucleus-native-plugins`) that contributes to the host's extension points. |
+
+The host app adds the package (a local `path:` in `project.yml`) and installs the plugin at launch with
+`PluginRegistry.install(_:)`. Each host defines its own contract package for its extension points — Watchlist's is
+`apps/watchlist/plugin-kit` (`SearchSource`) — which the plugin depends on. iOS can't load downloaded code, so native
+plugins are compiled in; the registry still checks `target` and `apiVersion`, and gives the person an on/off switch.
+See `nucleus-native-plugins/README.md`.
+
 The current plugin API version is defined in
 `infra/plugin-runtime/constants.js`. See `infra/nucleus-docs/PLUGINS.md` for the
 full architecture.
