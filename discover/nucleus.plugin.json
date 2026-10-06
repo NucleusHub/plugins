@@ -1,0 +1,10 @@
+{
+  "id": "discover",
+  "name": "Discover",
+  "description": "A Discover tab on Home with picks built from your MovieDNA: what people you follow are making, trailers, new releases, what's trending, and a row outside your comfort zone. Add anything with one tap, or say you're not interested and it's gone for good. With MovieDNA off it suggests from what you've watched.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "watchlist",
+  "crossApp": false,
+  "author": "Nucleus"
+}
