@@ -33,7 +33,7 @@ struct Filmography {
         let credits = person.credits.filter { !$0.title.isEmpty }
         var byGroup: [String: [PluginPersonCredit]] = [:]
         for credit in credits {
-            let group = credit.department == "Acting" && Self.isSelf(credit.role) ? Self.appearances : credit.department
+            let group = credit.isSelf ? Self.appearances : credit.department
             byGroup[group, default: []].append(credit)
         }
         // Their main department first, then by how much they did; appearances always last.
@@ -46,7 +46,7 @@ struct Filmography {
         groups = order.map { Group(id: $0, entries: Self.merge(byGroup[$0] ?? [])) }
         occupations = Self.occupations(person, credits: credits)
         // Well-known titles from what they're known for, not talk-show visits.
-        let main = credits.filter { $0.department == (person.knownFor ?? $0.department) && !Self.isSelf($0.role) }
+        let main = credits.filter { $0.department == (person.knownFor ?? $0.department) && !$0.isSelf }
         knownFor = Array(Self.merge(main.isEmpty ? credits : main).sorted { $0.voteCount > $1.voteCount }.prefix(10))
     }
 
@@ -72,7 +72,7 @@ struct Filmography {
     /// What they are, most defining first: "Actor", "Director", "Producer"...
     static func occupations(_ person: PluginPerson, credits: [PluginPersonCredit]) -> [String] {
         var counts: [String: Int] = [:]
-        for c in credits where !(c.department == "Acting" && isSelf(c.role)) {
+        for c in credits where !c.isSelf {
             guard let name = occupation(department: c.department, job: c.role) else { continue }
             counts[name, default: 0] += 1
         }
@@ -98,12 +98,5 @@ struct Filmography {
         case "Creator": "Creator"
         default: nil
         }
-    }
-
-    /// Talk shows, award shows and documentaries list people as themselves.
-    static func isSelf(_ role: String) -> Bool {
-        let r = role.lowercased()
-        return r == "self" || r.hasPrefix("self ") || r.hasPrefix("self -") || r.hasPrefix("himself") || r.hasPrefix("herself")
-            || r.hasPrefix("themselves") || r.contains("(uncredited) self")
     }
 }

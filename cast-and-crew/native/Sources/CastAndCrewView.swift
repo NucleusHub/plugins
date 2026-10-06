@@ -93,28 +93,3 @@ struct PersonBubble: View {
         .frame(width: size + 14)
     }
 }
-
-/// A circular photo, with initials when TMDb has no picture.
-struct PersonPhoto: View {
-    let url: URL?
-    let name: String
-
-    var body: some View {
-        Circle()
-            .fill(Nucleus.well)
-            .overlay {
-                if let url {
-                    AsyncImage(url: url) { $0.resizable().scaledToFill() } placeholder: { initials }
-                } else {
-                    initials
-                }
-            }
-            .clipShape(Circle())
-    }
-
-    private var initials: some View {
-        Text(verbatim: name.split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined())
-            .font(.system(size: 20, weight: .semibold))
-            .foregroundStyle(Nucleus.secondaryText)
-    }
-}

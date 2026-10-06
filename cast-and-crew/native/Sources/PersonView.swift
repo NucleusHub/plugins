@@ -149,7 +149,7 @@ struct PersonView: View {
     /// "Born 18 December 1963 in Shawnee, Oklahoma" or "1930 – 2020".
     private func lifeLine(_ person: PluginPerson) -> String? {
         func date(_ s: String?) -> String? {
-            guard let s, let d = ISO8601DateFormatter.day.date(from: s) else { return nil }
+            guard let s, let d = PluginPersonCredit.dateFormat.date(from: s) else { return nil }
             return d.formatted(date: .long, time: .omitted)
         }
         let born = date(person.birthday), died = date(person.deathday)
@@ -175,22 +175,13 @@ struct PersonView: View {
     }
 }
 
-extension ISO8601DateFormatter {
-    /// TMDb's `yyyy-mm-dd`.
-    nonisolated(unsafe) static let day: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withFullDate]
-        return f
-    }()
-}
-
 struct KnownForCard: View {
     let entry: Filmography.Entry
     let inLibrary: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            TitlePoster(url: entry.posterURL)
+            TitlePoster(url: entry.posterURL, cornerRadius: 12)
                 .frame(width: 110, height: 165)
                 .overlay(alignment: .topTrailing) { if inLibrary { LibraryBadge().padding(6) } }
             Text(verbatim: entry.title)
@@ -228,35 +219,5 @@ struct FilmographyRow: View {
         }
         .padding(.horizontal, 16).padding(.vertical, 8)
         .contentShape(Rectangle())
-    }
-}
-
-struct TitlePoster: View {
-    let url: URL?
-    var cornerRadius: CGFloat = 12
-
-    var body: some View {
-        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(Nucleus.well)
-            .overlay {
-                if let url {
-                    AsyncImage(url: url) { $0.resizable().scaledToFill() } placeholder: { Color.clear }
-                } else {
-                    Image(systemName: "film").foregroundStyle(Nucleus.secondaryText)
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-    }
-}
-
-/// Marks titles already in the watchlist.
-struct LibraryBadge: View {
-    var body: some View {
-        Image(systemName: "checkmark")
-            .font(.system(size: 10, weight: .bold))
-            .foregroundStyle(.white)
-            .frame(width: 20, height: 20)
-            .background(Circle().fill(Color(red: 0.2, green: 0.78, blue: 0.35)))
-            .accessibilityLabel("In your watchlist")
     }
 }

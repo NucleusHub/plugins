@@ -112,7 +112,7 @@ struct SuggestionCard: View {
         let added = host.inLibrary(suggestion.kind, tmdbID: suggestion.tmdbID)
         VStack(alignment: .leading, spacing: 6) {
             Button { host.open(.title(suggestion.kind, suggestion.tmdbID)) } label: {
-                PosterImage(url: suggestion.posterURL)
+                TitlePoster(url: suggestion.posterURL)
                     .frame(width: Self.width, height: Self.width * 1.5)
             }
             .buttonStyle(NucleusPressStyle(scale: 0.96))
@@ -159,7 +159,7 @@ struct SuggestionCard: View {
                 }
             }
             .frame(width: 32, height: 32)
-            .background(Circle().fill(added ? AnyShapeStyle(Color(red: 0.2, green: 0.78, blue: 0.35)) : AnyShapeStyle(Nucleus.primaryGradient)))
+            .background(Circle().fill(added ? AnyShapeStyle(Color.inLibrary) : AnyShapeStyle(Nucleus.primaryGradient)))
         }
         .disabled(added || adding)
         .accessibilityLabel(added ? "In your watchlist" : "Add to watchlist")
@@ -221,22 +221,5 @@ struct TrailerCard: View {
         }
         .buttonStyle(NucleusPressStyle(scale: 0.96))
         .accessibilityLabel(Text("Trailer: \(trailer.title.title)"))
-    }
-}
-
-struct PosterImage: View {
-    let url: URL?
-
-    var body: some View {
-        RoundedRectangle(cornerRadius: 14, style: .continuous)
-            .fill(Nucleus.well)
-            .overlay {
-                if let url {
-                    AsyncImage(url: url) { $0.resizable().scaledToFill() } placeholder: { Color.clear }
-                } else {
-                    Image(systemName: "film").foregroundStyle(Nucleus.secondaryText)
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }
