@@ -1,0 +1,10 @@
+{
+  "id": "news",
+  "name": "News",
+  "description": "Film and TV news from Variety, Deadline, The Hollywood Reporter, IndieWire and /Film, behind a button on Home. For you shows what mentions your titles and the people you follow, with why; Everything shows it all. Person pages get an In the news section too.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "watchlist",
+  "crossApp": false,
+  "author": "Nucleus"
+}
