@@ -1,0 +1,10 @@
+{
+  "id": "cast-and-crew",
+  "name": "Cast & Crew",
+  "description": "Shows who's in a title and who made it, with a page for every actor, director, writer and producer: what they do, their story, everything they worked on and a link to Wikipedia. Follow them to shape your MovieDNA.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "watchlist",
+  "crossApp": false,
+  "author": "Nucleus"
+}
