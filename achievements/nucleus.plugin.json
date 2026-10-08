@@ -1,0 +1,10 @@
+{
+  "id": "achievements",
+  "name": "Achievements",
+  "description": "Badges for streaks, finished tasks, focus time and more, with progress toward each. A new one comes with a toast and confetti, and they show as a card on Statistics.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "todo",
+  "crossApp": false,
+  "author": "Nucleus"
+}
