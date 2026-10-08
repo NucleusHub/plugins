@@ -1,0 +1,10 @@
+{
+  "id": "watchlist-link",
+  "name": "Watchlist link",
+  "description": "Attach a movie, a show or a few episodes from your Watchlist library to a task. Finishing the task marks them watched in Watchlist; reopening it can take that back.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "todo",
+  "crossApp": false,
+  "author": "Nucleus"
+}
