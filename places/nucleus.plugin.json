@@ -1,0 +1,10 @@
+{
+  "id": "places",
+  "name": "Places",
+  "description": "Give a task a place: search Apple Maps or tap the map, set a radius, and get reminded when you arrive or leave. Adds a Places smart list and shows the place on the task.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "todo",
+  "crossApp": false,
+  "author": "Nucleus"
+}
