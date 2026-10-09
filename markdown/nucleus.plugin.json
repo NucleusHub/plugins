@@ -1,0 +1,10 @@
+{
+  "id": "markdown",
+  "name": "Markdown",
+  "description": "Import Markdown and text files as notes or into a note, and export or copy any note as Markdown.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
