@@ -1,0 +1,15 @@
+{
+  "originHash" : "e774ea2848f41be9df6b47f47233282d9134173f5d42c4fa9082c3db46021e32",
+  "pins" : [
+    {
+      "identity" : "nucleus-native-ui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/NucleusHub/nucleus-native-ui",
+      "state" : {
+        "revision" : "440dca36d8fe72a329f0a3f30ff5adede1de3824",
+        "version" : "0.3.0"
+      }
+    }
+  ],
+  "version" : 3
+}

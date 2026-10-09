@@ -1,0 +1,10 @@
+{
+  "id": "todo-card",
+  "name": "Todo card",
+  "description": "Attach a Todo list to a note. Check off tasks and add new ones right from the note; Todo applies them on its next sync.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
