@@ -49,7 +49,8 @@ struct WatchlistDetail: TaskDetail {
         link(task).map { link in
             // A title like "Watch Severance S2 E5–8" already says what; the chip adds only the episodes.
             let named = task.title.localizedCaseInsensitiveContains(link.title)
-            return TaskChip(icon: icon(link), text: named ? (link.range ?? String(localized: "Watchlist")) : link.label)
+            return TaskChip(icon: icon(link), text: named ? (link.range ?? String(localized: "Watchlist")) : link.label,
+                           url: URL(string: "com.nucleushome.watchlist://item/\(link.itemId)"))
         }
     }
 
