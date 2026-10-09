@@ -46,7 +46,7 @@ struct NoteEditorSection: TaskEditorSection {
 }
 
 struct NoteDetail: TaskDetail {
-    func chip(for task: PluginTask) -> TaskChip? { link(task).map { TaskChip(icon: "note.text", text: $0.title) } }
+    func chip(for task: PluginTask) -> TaskChip? { link(task).map { TaskChip(icon: "note.text", text: $0.title, url: $0.pending == nil ? $0.url : nil) } }
     func shareLine(for task: PluginTask) -> String? { link(task).map { "📝 \($0.title)" } }
     func searchText(for task: PluginTask) -> String? { link(task)?.title }
 
