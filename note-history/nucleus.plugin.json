@@ -1,0 +1,10 @@
+{
+  "id": "note-history",
+  "name": "Note history",
+  "description": "Keeps earlier versions of your notes on this device, so you can compare them and restore one.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
