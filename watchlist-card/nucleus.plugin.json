@@ -1,0 +1,10 @@
+{
+  "id": "watchlist-card",
+  "name": "Watchlist card",
+  "description": "Attach a movie, a show or one of its seasons from your Watchlist library to a note, as a poster card with its status and how far you've watched.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
