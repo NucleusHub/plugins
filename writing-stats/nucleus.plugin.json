@@ -1,0 +1,10 @@
+{
+  "id": "writing-stats",
+  "name": "Writing stats",
+  "description": "Words, characters and reading time in a note's info, and a statistics page with notes per week, words written and your streak.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
