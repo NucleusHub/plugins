@@ -1,0 +1,10 @@
+{
+  "id": "backlinks",
+  "name": "Backlinks",
+  "description": "Link notes to each other and see which notes link to the one you are reading. Turns [[Note title]] into links.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
