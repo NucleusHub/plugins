@@ -1,0 +1,10 @@
+{
+  "id": "voice-memo",
+  "name": "Voice memo",
+  "description": "Record audio into a note and get a transcript made on your device, ready to search or insert as text.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
