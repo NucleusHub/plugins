@@ -1,0 +1,10 @@
+{
+  "id": "sketch",
+  "name": "Sketch",
+  "description": "Draw with your finger or Apple Pencil and put the sketch in a note as an image. The drawing stays editable.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
