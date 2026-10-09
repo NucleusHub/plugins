@@ -184,7 +184,7 @@ A plugin can also ship a Swift build, for native apps. `anime-source` is the ref
 
 The host app adds the package (a local `path:` in `project.yml`) and installs the plugin at launch with
 `PluginRegistry.install(_:)`. Each host defines its own contract package for its extension points — Watchlist's is
-`apps/watchlist/plugin-kit` (`SearchSource`), Todo's is `apps/todo/plugin-kit` (`places` and `achievements` use
+`apps/watchlist/plugin-kit` (`SearchSource`), Todo's is `apps/todo/plugin-kit` (`places`, `achievements`, `watchlist-link` and `notes-link` use
 it) — which the plugin depends on. iOS can't load downloaded code, so native
 plugins are compiled in; the registry still checks `target` and `apiVersion`, and gives the person an on/off switch.
 See `nucleus-native-plugins/README.md`.

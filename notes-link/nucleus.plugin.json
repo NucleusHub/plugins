@@ -1,0 +1,10 @@
+{
+  "id": "notes-link",
+  "name": "Notes link",
+  "description": "Attach a note from Notes to a task, or start a new note for it. The task shows the note's title and opens it in Notes.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "todo",
+  "crossApp": false,
+  "author": "Nucleus"
+}
