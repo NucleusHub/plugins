@@ -1,0 +1,10 @@
+{
+  "id": "templates",
+  "name": "Templates",
+  "description": "Start a note from a template: meeting notes, a daily journal, a recipe, a packing list and more. Save any note as your own template.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
