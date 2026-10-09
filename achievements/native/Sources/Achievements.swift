@@ -88,7 +88,7 @@ struct Achievement: Identifiable {
         .init(id: "earlyBird", title: "Early bird", detail: "Finish a task before 7 in the morning.", icon: "sunrise.fill", tint: .sky, target: 1),
         .init(id: "nightOwl", title: "Night owl", detail: "Finish a task after 11 at night.", icon: "moon.stars.fill", tint: .indigo, target: 1),
         .init(id: "inboxZero", title: "Inbox zero", detail: "Empty your Inbox after finishing 10 tasks.", icon: "tray", tint: .sky, target: 1),
-        .init(id: "organiser", title: "Organiser", detail: "Make 5 lists.", icon: "folder.fill", tint: .blue, target: 5),
+        .init(id: "organiser", title: "Organizer", detail: "Make 5 lists.", icon: "folder.fill", tint: .blue, target: 5),
         .init(id: "tagger", title: "Tagger", detail: "Use 5 different tags.", icon: "number", tint: .slate, target: 5),
         .init(id: "explorer", title: "Explorer", detail: "Give a task a place.", icon: "map.fill", tint: .teal, target: 1, needs: "places"),
         .init(id: "stepper", title: "Step by step", detail: "Tick off 25 steps.", icon: "checklist", tint: .emerald, target: 25),

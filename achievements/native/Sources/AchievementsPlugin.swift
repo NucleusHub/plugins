@@ -64,7 +64,7 @@ private struct AchievementsCardView: View {
     }
 }
 
-/// One achievement: a gradient medal when unlocked, a grey one with a progress ring before.
+/// One achievement: a gradient medal when unlocked, a gray one with a progress ring before.
 private struct Badge: View {
     let achievement: Achievement
     let unlockedAt: Date?

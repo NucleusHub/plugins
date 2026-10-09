@@ -72,7 +72,7 @@ public enum Reconciler {
     /// "Just the task" (or the dialog dismissed): forget the mark, leave Watchlist alone.
     public static func justTheTask(_ link: WatchLink) -> WatchLink { cleared(link, dropMark: true) }
 
-    /// "Also mark unwatched" cancelled the mark command, or found it too late to.
+    /// "Also mark unwatched" canceled the mark command, or found it too late to.
     public static func cancelled(_ link: WatchLink, _ outcome: CancelOutcome) -> WatchLink {
         guard var mark = link.mark else { return link }
         switch outcome {
