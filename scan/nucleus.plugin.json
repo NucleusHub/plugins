@@ -1,0 +1,10 @@
+{
+  "id": "scan",
+  "name": "Scan",
+  "description": "Scan paper documents into a note. Text in the scans is recognized on your device, so you can search for it.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
