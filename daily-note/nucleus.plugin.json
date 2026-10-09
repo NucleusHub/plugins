@@ -1,0 +1,10 @@
+{
+  "id": "daily-note",
+  "name": "Daily note",
+  "description": "One note for each day in your journal, a home card with this week at a glance and your writing streak.",
+  "version": "1.0.0",
+  "apiVersion": "0.1.0",
+  "target": "notes",
+  "crossApp": false,
+  "author": "Nucleus"
+}
