@@ -42,6 +42,9 @@ struct WatchlistEditorSection: TaskEditorSection {
     func view(_ context: TaskEditorContext) -> AnyView {
         AnyView(WatchlistSection(value: context.pluginData(for: LinkSync.pluginID), title: context.title, host: context.host))
     }
+
+    var toolbarItem: TaskEditorToolbarItem? { TaskEditorToolbarItem(title: "Watchlist", icon: "play.rectangle.on.rectangle") }
+    @MainActor func isAttached(_ context: TaskEditorContext) -> Bool { context.pluginData(for: LinkSync.pluginID).wrappedValue != nil }
 }
 
 struct WatchlistDetail: TaskDetail {

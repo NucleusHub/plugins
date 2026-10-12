@@ -43,6 +43,9 @@ struct NoteEditorSection: TaskEditorSection {
         AnyView(NoteSection(value: context.pluginData(for: NotesRefresh.pluginID), title: context.title, notes: context.notes,
                             taskID: context.taskID, host: context.host))
     }
+
+    var toolbarItem: TaskEditorToolbarItem? { TaskEditorToolbarItem(title: "Note", icon: "note.text") }
+    @MainActor func isAttached(_ context: TaskEditorContext) -> Bool { context.pluginData(for: NotesRefresh.pluginID).wrappedValue != nil }
 }
 
 struct NoteDetail: TaskDetail {

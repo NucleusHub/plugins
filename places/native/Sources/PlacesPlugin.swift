@@ -33,6 +33,9 @@ struct PlaceEditorSection: TaskEditorSection {
     func view(_ context: TaskEditorContext) -> AnyView {
         AnyView(PlaceSection(location: context.location, host: context.host))
     }
+
+    var toolbarItem: TaskEditorToolbarItem? { TaskEditorToolbarItem(title: "Place", icon: "mappin.and.ellipse") }
+    @MainActor func isAttached(_ context: TaskEditorContext) -> Bool { context.location.wrappedValue != nil }
 }
 
 struct PlaceDetail: TaskDetail {
