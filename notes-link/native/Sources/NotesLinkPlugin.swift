@@ -40,7 +40,7 @@ public struct NotesLinkPlugin: Plugin, PluginActivation {
 struct NoteEditorSection: TaskEditorSection {
     @MainActor
     func view(_ context: TaskEditorContext) -> AnyView {
-        AnyView(NoteSection(value: context.pluginData(for: NotesRefresh.pluginID), title: context.title, notes: context.notes,
+        AnyView(NoteSection(value: context.pluginData(for: NotesRefresh.pluginID), title: context.title, notes: context.notes, color: context.color,
                             taskID: context.taskID, host: context.host))
     }
 

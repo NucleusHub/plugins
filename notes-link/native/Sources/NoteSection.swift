@@ -8,6 +8,7 @@ struct NoteSection: View {
     @Binding var value: JSONValue?
     @Binding var title: String
     @Binding var notes: String
+    @Binding var color: String?
     let taskID: String
     let host: any TodoHost
     @State private var picking = false
@@ -41,6 +42,8 @@ struct NoteSection: View {
                 withAnimation(NucleusMotion.quick) {
                     live = note
                     value = NoteLink(noteId: note.id, title: note.displayTitle, color: note.color).json
+                    // Only on attach: later color changes on either side stay separate.
+                    if NoteColor(note.color) != nil { color = note.color }
                 }
             }
             .presentationDragIndicator(.visible)
