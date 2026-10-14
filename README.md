@@ -129,6 +129,9 @@ app.
 | `client/watchlistSources.js` | Watchlist | Extra metadata backends for the add/edit search box (see `apps/watchlist/client/src/api/sources.js` for the contract). Also declared as `extensions.watchlistSources`. |
 | `client/watchlistIndicator.vue` | Watchlist | A small badge on every item card. Receives `item`. |
 | `client/watchlistSurface.vue` | Watchlist | A whole section of the app — see below. |
+| `client/watchlistItemSection.vue` | Watchlist | A section on a title's detail and preview pages — see below. |
+| `client/watchlistPage.vue` | Watchlist | Whole pages at `/watchlist/p/{plugin}/{page}/{arg}`, declared as `extensions.watchlistPages`. |
+| `client/watchlistPersonSection.vue` | Watchlist | A section on the person page (the plugin that owns the `person` page draws it). |
 | `client/shelfIndicator.vue`, `client/dexIndicator.vue` | Shelf, Dex | The same badge idea in the sibling apps. |
 
 ### `watchlistSurface` — a plugin-owned section of the Watchlist
@@ -138,11 +141,12 @@ The plugin ships `client/watchlistSurface.vue` and describes it in the manifest:
 ```jsonc
 "extensions": {
   "watchlistSurface": {
-    "path": "for-you",              // route segment, mounted at /watchlist/x/{path}
-    "label": "For You",             // nav tab label (an i18n key also works)
+    "path": "discover",             // route segment, mounted at /watchlist/x/{path}
+    "label": "Discover",            // nav tab label (an i18n key also works)
     "placements": ["tab", "panel"], // which the component can handle; default both
     "defaultPlacement": "tab"       // until the user chooses
-  }
+  },
+  "movieDNAUse": { "purpose": "Picks what Discover shows you" } // optional: says it reads MovieDNA
 }
 ```
 
@@ -158,12 +162,37 @@ and hands it the data:
 |---|---|
 | prop `items` | the viewer's full watchlist, already loaded by the host |
 | prop `placement` | `'tab'` or `'panel'`, so it can render compactly in a panel |
+| prop `host` | what the app does for the plugin: read-only `movieDNA` and `library`, `tmdb(path, query)` (the app makes the call), `inLibrary`, `addToWatchlist`, `markNotInterested`, follow/`person`, `open`, `playTrailer`, `news()` (cached feed articles from the app's server). The full contract is the comment at the top of `apps/watchlist/client/src/utils/pluginSurfaces.js` |
 | emit `changed` | asks the host to reload items (the plugin added or changed one) |
 
 In tab placement the host wraps it in `views/PluginSurfaceView.vue`, which owns
 the header, sidebar and nav — a surface never renders app chrome itself.
 
-`recommendations` is the reference example.
+`movieDNAUse` lists the plugin under "Used by" in Watchlist → Settings → MovieDNA;
+with no plugin declaring one the app says MovieDNA changes nothing. `discover` is
+the reference example.
+
+### Watchlist pages, item sections and person sections
+
+These mirror the iOS extension points in `apps/watchlist/plugin-kit` (`itemSections`, `pages`,
+`personSections`, `headerButtons`). Every prop below is passed by the host; the full host contract is the
+comment at the top of `pluginSurfaces.js`.
+
+| File | Props | Notes |
+|---|---|---|
+| `client/watchlistItemSection.vue` | `kind`, `tmdbID` (null when TMDb doesn't know the title), `title`, `canNavigate`, `credits`, `host` | `credits` is `{ cast, crew }` for titles entered by hand (`personID` 0 = not on TMDb), else `null`. |
+| `client/watchlistPage.vue` | `page`, `arg`, `host` | One component draws every page id in `extensions.watchlistPages` (an array of ids). The id `person` answers `host.open({ type: 'person', id, name })` (arg = TMDb person id). |
+| `client/watchlistPersonSection.vue` | `personID`, `name`, `host` | Rendered by `<component :is="host.personSections">` on the person page. |
+
+```jsonc
+"extensions": {
+  "watchlistPages": ["person", "credits"],
+  "watchlistHeaderButtons": [{ "icon": "search", "title": "Label", "page": "my-page" }] // core icon name; opens the page with an empty arg
+}
+```
+
+Open one from a plugin with `host.open({ type: 'page', plugin: 'my-plugin', page: 'credits', arg: '…' })`.
+All of them are gated on the plugin being enabled. `cast-and-crew` is the reference example (it owns the person page).
 
 The current plugin API version is defined in
 `infra/plugin-runtime/constants.js`. See `infra/nucleus-docs/PLUGINS.md` for the
