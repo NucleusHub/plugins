@@ -32,44 +32,45 @@ const departments = computed(() => {
 })
 
 const open = (c) => props.host.open({ type: 'person', id: c.personID, name: c.name })
-const rowClass = 'cursor-pointer w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors'
-const card = 'rounded-xl bg-white/60 dark:bg-slate-800/50 border border-white/60 dark:border-white/8 overflow-hidden divide-y divide-black/[0.06] dark:divide-white/8'
+const rowClass = 'wl-row !py-2'
+const card = 'wl-group'
 </script>
 
 <template>
   <div class="flex flex-col gap-5">
-    <h1 class="text-2xl font-bold tracking-tight">{{ parts.title || 'Cast & crew' }}</h1>
+    <h1 class="px-1 text-[34px] leading-tight font-bold tracking-[-0.02em]">{{ parts.title || 'Cast & crew' }}</h1>
 
-    <p v-if="!credits" class="text-center py-16 text-slate-400 dark:text-slate-500">Loading…</p>
+    <p v-if="!credits" class="text-center py-16 text-[var(--wl-text-2)]">Loading…</p>
     <template v-else>
-      <div class="flex rounded-full bg-black/5 dark:bg-white/8 p-0.5" role="group">
+      <div class="wl-seg wl-seg-static flex" role="tablist">
         <button
           v-for="t in ['cast', 'crew']"
           :key="t"
           type="button"
-          :aria-pressed="tab === t"
-          :class="['cursor-pointer flex-1 text-sm font-medium px-3 py-1.5 rounded-full capitalize transition-colors', tab === t ? 'bg-white dark:bg-white/15 shadow-sm' : 'text-slate-500 dark:text-slate-400']"
+          role="tab"
+          :aria-selected="tab === t ? 'true' : 'false'"
+          class="wl-seg-item flex-1 text-center capitalize"
           @click="tab = t"
         >{{ t }}</button>
       </div>
 
-      <div v-if="tab === 'cast'" :class="card">
+      <div v-if="tab === 'cast'" v-glass :class="card">
         <button v-for="c in credits.cast" :key="`${c.personID}-${c.role}`" type="button" :class="rowClass" @click="open(c)">
           <span class="block w-11 h-11 shrink-0"><PersonPhoto :url="c.photoURL" :name="c.name" /></span>
           <span class="min-w-0 flex-1">
-            <span class="block truncate text-base text-slate-900 dark:text-white">{{ c.name }}</span>
-            <span v-if="c.role" class="block truncate text-[13px] text-slate-500 dark:text-slate-400">{{ c.role }}</span>
+            <span class="block truncate text-base text-[var(--wl-text)]">{{ c.name }}</span>
+            <span v-if="c.role" class="block truncate text-[13px] text-[var(--wl-text-2)]">{{ c.role }}</span>
           </span>
         </button>
       </div>
       <section v-for="d in tab === 'crew' ? departments : []" :key="d.name" class="flex flex-col gap-2">
-        <h2 class="px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/35">{{ d.name }}</h2>
-        <div :class="card">
+        <h2 class="wl-heading !pb-0">{{ d.name }}</h2>
+        <div v-glass :class="card">
           <button v-for="c in d.people" :key="`${c.personID}-${c.role}`" type="button" :class="rowClass" @click="open(c)">
             <span class="block w-11 h-11 shrink-0"><PersonPhoto :url="c.photoURL" :name="c.name" /></span>
             <span class="min-w-0 flex-1">
-              <span class="block truncate text-base text-slate-900 dark:text-white">{{ c.name }}</span>
-              <span v-if="c.role" class="block truncate text-[13px] text-slate-500 dark:text-slate-400">{{ c.role }}</span>
+              <span class="block truncate text-base text-[var(--wl-text)]">{{ c.name }}</span>
+              <span v-if="c.role" class="block truncate text-[13px] text-[var(--wl-text-2)]">{{ c.role }}</span>
             </span>
           </button>
         </div>

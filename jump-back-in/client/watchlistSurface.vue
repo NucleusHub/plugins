@@ -45,10 +45,10 @@ function run(t, action) {
 </script>
 
 <template>
-  <section v-if="titles.length || !isPanel" class="glass rounded-2xl p-4 flex flex-col gap-3">
-    <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400">Jump back in</h2>
+  <section v-if="titles.length || !isPanel" class="flex flex-col">
+    <h2 class="wl-heading">Jump back in</h2>
 
-    <p v-if="!titles.length" class="text-sm text-slate-400 dark:text-slate-500">
+    <p v-if="!titles.length" class="px-4 text-sm text-[var(--wl-text-2)]">
       Nothing to jump back into yet. Open a title from your list and it will show up here.
     </p>
 
@@ -57,19 +57,19 @@ function run(t, action) {
         <button
           type="button"
           :aria-label="`Continue watching ${t.title}`"
-          class="cursor-pointer w-full flex items-center gap-3 text-left rounded-2xl bg-black/[0.04] dark:bg-white/5 hover:bg-black/[0.07] dark:hover:bg-white/10 transition-colors px-3 py-2.5 pr-9"
+          class="wl-row wl-surface rounded-[20px] !py-2.5 !pl-3 !pr-9"
           @click="host.resume(t.id)"
         >
-          <img v-if="t.posterURL" :src="t.posterURL" alt="" class="w-[52px] h-[78px] rounded-lg object-cover shrink-0" />
-          <div v-else class="w-[52px] h-[78px] rounded-lg bg-black/10 dark:bg-white/10 shrink-0" />
+          <img v-if="t.posterURL" :src="t.posterURL" alt="" v-squircle class="w-[52px] h-[78px] rounded-[8px] object-cover shrink-0" />
+          <div v-else class="w-[52px] h-[78px] rounded-[8px] bg-[var(--wl-well)] shrink-0" />
           <div class="min-w-0 flex-1 flex flex-col gap-1.5">
-            <span class="text-base font-semibold text-slate-900 dark:text-white line-clamp-2">{{ t.title }}</span>
-            <span class="text-xs tabular-nums text-slate-500 dark:text-slate-400 truncate">{{ subtitle(t) }}</span>
-            <div v-if="t.resume" class="h-1 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
-              <div class="h-full bg-blue-600" :style="{ width: `${t.resume.fraction * 100}%` }" />
+            <span class="text-base font-semibold text-[var(--wl-text)] line-clamp-2">{{ t.title }}</span>
+            <span class="text-xs tabular-nums text-[var(--wl-text-2)] truncate">{{ subtitle(t) }}</span>
+            <div v-if="t.resume" class="h-1 rounded-full bg-[var(--wl-well)] overflow-hidden">
+              <div class="h-full bg-[#2A78D6]" :style="{ width: `${t.resume.fraction * 100}%` }" />
             </div>
           </div>
-          <span class="shrink-0 w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center">
+          <span class="shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white flex items-center justify-center">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
           </span>
         </button>
@@ -78,7 +78,7 @@ function run(t, action) {
           <button
             type="button"
             aria-label="Reset progress"
-            class="cursor-pointer absolute top-1 right-1 w-7 h-7 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            class="cursor-pointer absolute top-2 right-2 w-7 h-7 rounded-full text-[var(--wl-text-2)] hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
             @click.stop="menu = menu === t.id ? null : t.id"
           >
             <svg class="w-4 h-4 mx-auto" viewBox="0 0 24 24" fill="currentColor">
@@ -87,7 +87,7 @@ function run(t, action) {
           </button>
           <div
             v-if="menu === t.id"
-            class="absolute right-1 top-9 z-10 min-w-44 rounded-xl bg-white dark:bg-slate-800 shadow-lg p-1 flex flex-col"
+            v-glass class="absolute right-1 top-9 z-10 min-w-44 rounded-[16px] p-1 flex flex-col"
             @click.stop
           >
             <button
@@ -95,7 +95,7 @@ function run(t, action) {
               :key="a.id"
               type="button"
               class="cursor-pointer text-left text-sm px-3 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"
-              :class="a.isDestructive ? 'text-red-600 dark:text-red-400' : 'text-slate-700 dark:text-slate-200'"
+              :class="a.isDestructive ? 'text-red-600 dark:text-red-400' : 'text-[var(--wl-text)]'"
               @click="run(t, a)"
             >
               {{ a.title }}

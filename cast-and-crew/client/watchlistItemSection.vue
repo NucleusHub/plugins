@@ -45,10 +45,10 @@ const seeAll = () => props.host.open({ type: 'page', plugin: 'cast-and-crew', pa
 </script>
 
 <template>
-  <section v-if="people.length" class="flex flex-col gap-2">
-    <h2 class="px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-white/35">Cast &amp; crew</h2>
-    <div class="rounded-xl bg-white/60 dark:bg-slate-800/50 border border-white/60 dark:border-white/8 overflow-hidden divide-y divide-black/[0.06] dark:divide-white/8">
-      <div class="flex gap-3.5 overflow-x-auto p-3.5">
+  <section v-if="people.length" class="flex flex-col mb-7">
+    <h2 class="wl-heading">Cast &amp; crew</h2>
+    <div v-glass class="wl-group">
+      <div class="flex gap-3.5 overflow-x-auto no-scrollbar p-4">
         <component
           :is="canOpen(p) ? 'button' : 'div'"
           v-for="p in people"
@@ -58,18 +58,18 @@ const seeAll = () => props.host.open({ type: 'page', plugin: 'cast-and-crew', pa
           @click="canOpen(p) && openPerson(p)"
         >
           <span class="block w-[76px] h-[76px]"><PersonPhoto :url="p.photoURL" :name="p.name" /></span>
-          <span class="text-[13px] font-semibold leading-tight text-slate-900 dark:text-white line-clamp-2">{{ p.name }}</span>
-          <span v-if="p.role" class="text-xs leading-tight text-slate-500 dark:text-slate-400 line-clamp-2">{{ p.role }}</span>
+          <span class="text-[13px] font-semibold leading-tight line-clamp-2">{{ p.name }}</span>
+          <span v-if="p.role" class="text-xs leading-tight text-[var(--wl-text-2)] line-clamp-2">{{ p.role }}</span>
         </component>
       </div>
       <button
         v-if="canNavigate && !credits && tmdbID"
         type="button"
-        class="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-slate-900 dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors"
+        class="wl-row"
         @click="seeAll"
       >
         <span class="flex-1">See all cast &amp; crew</span>
-        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
       </button>
     </div>
   </section>

@@ -49,8 +49,8 @@ function notInterested() {
 </script>
 
 <template>
-  <article class="w-32 shrink-0 flex flex-col gap-1.5">
-    <div class="relative aspect-[2/3] rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700/60 shadow-sm">
+  <article class="w-[132px] shrink-0 flex flex-col gap-2">
+    <div v-squircle class="relative aspect-[2/3] rounded-[14px] overflow-hidden bg-[var(--wl-well)] shadow-[0_8px_20px_-8px_rgb(0_0_0/0.45)]">
       <button type="button" class="cursor-pointer block w-full h-full" :title="suggestion.title" @click="open">
         <img :src="suggestion.posterURL" :alt="suggestion.title" loading="lazy" class="w-full h-full object-cover" />
       </button>
@@ -58,7 +58,7 @@ function notInterested() {
         v-if="!added"
         type="button"
         title="Not interested"
-        class="cursor-pointer absolute top-1.5 left-1.5 grid place-items-center w-6 h-6 rounded-full bg-black/45 text-white hover:bg-black/70 transition-colors"
+        class="cursor-pointer absolute top-1.5 left-1.5 grid place-items-center w-6 h-6 rounded-full bg-black/35 backdrop-blur-md text-white hover:bg-black/60 transition-colors"
         @click="notInterested"
       >
         <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 6l12 12M18 6 6 18" /></svg>
@@ -69,7 +69,7 @@ function notInterested() {
         :title="added ? 'In your watchlist' : 'Add to watchlist'"
         :class="[
           'absolute top-1.5 right-1.5 grid place-items-center w-8 h-8 rounded-full text-white shadow transition-colors',
-          added ? 'bg-emerald-600' : failed ? 'bg-red-600/90 cursor-pointer' : 'bg-indigo-600 hover:bg-indigo-500 cursor-pointer',
+          added ? 'bg-[#1BAF7A]' : failed ? 'bg-red-600/90 cursor-pointer' : 'bg-gradient-to-br from-indigo-500 to-violet-500 hover:brightness-110 cursor-pointer',
         ]"
         @click="add"
       >
@@ -79,7 +79,7 @@ function notInterested() {
         <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14" /></svg>
       </button>
     </div>
-    <h4 class="text-[13px] font-semibold leading-tight text-slate-900 dark:text-white line-clamp-2" :title="suggestion.title">{{ suggestion.title }}</h4>
-    <p v-if="why" class="text-xs leading-snug text-slate-400 dark:text-slate-500 line-clamp-2">{{ why }}</p>
+    <h4 class="text-[13px] font-semibold leading-tight text-[var(--wl-text)] line-clamp-2" :title="suggestion.title">{{ suggestion.title }}</h4>
+    <p v-if="why" class="text-xs leading-snug text-[var(--wl-text-2)] line-clamp-2">{{ why }}</p>
   </article>
 </template>

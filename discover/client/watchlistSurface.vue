@@ -34,11 +34,11 @@ const rowClass = 'flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1'
 </script>
 
 <template>
-  <section class="glass rounded-2xl p-4 flex flex-col gap-5">
+  <section v-glass="isPanel" :class="['flex flex-col gap-6', isPanel ? 'rounded-[var(--wl-r-card)] p-5' : '']">
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
-        <h2 class="text-base font-semibold text-slate-900 dark:text-white">Discover</h2>
-        <p v-if="!state.usesDNA && !empty" class="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
+        <h2 v-if="isPanel" class="text-lg font-bold tracking-tight">Discover</h2>
+        <p v-if="!state.usesDNA && !empty" class="mt-0.5 text-xs text-[var(--wl-text-2)]">
           MovieDNA is off, so these come from what you've watched.
         </p>
       </div>
@@ -47,37 +47,38 @@ const rowClass = 'flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1'
         type="button"
         title="Refresh"
         :disabled="state.loading"
-        class="cursor-pointer shrink-0 h-7 px-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/8 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        v-glass.dome
+        class="nuc-press cursor-pointer shrink-0 w-10 h-10 rounded-full grid place-items-center text-[var(--wl-glyph)] hover:text-[var(--wl-text)] disabled:opacity-50 disabled:cursor-default"
         @click="reload(true)"
       >
-        <svg class="w-3.5 h-3.5" :class="state.loading ? 'animate-spin' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <svg class="w-[18px] h-[18px]" :class="state.loading ? 'animate-spin' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992V4.356M2.985 19.644v-4.992h4.992M19.5 9.5A8 8 0 0 0 5 7.5M4.5 14.5A8 8 0 0 0 19 16.5" />
         </svg>
       </button>
     </div>
 
-    <p v-if="!host.hasTMDbKey" class="text-sm text-slate-500 dark:text-slate-400">
+    <p v-if="!host.hasTMDbKey" class="text-sm text-[var(--wl-text-2)]">
       TMDb isn't configured for this install, so there's nothing to discover from.
     </p>
-    <p v-else-if="empty && state.failed" class="text-sm text-amber-600 dark:text-amber-400">
+    <p v-else-if="empty && state.failed" class="text-sm text-[var(--wl-danger)]">
       Couldn't load Discover. Check your connection and refresh.
     </p>
-    <p v-else-if="empty" class="text-sm text-slate-400 dark:text-slate-500">
+    <p v-else-if="empty" class="text-sm text-[var(--wl-text-2)]">
       {{ state.loading ? 'Looking for something you\'ll like…' : 'Nothing to suggest yet. Rate a few titles and check back.' }}
     </p>
 
     <template v-else>
       <div v-for="row in rows" :key="row.key" class="flex flex-col gap-2">
         <div>
-          <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ row.title }}</h3>
-          <p v-if="row.subtitle" class="text-xs text-slate-400 dark:text-slate-500">{{ row.subtitle }}</p>
+          <h3 class="text-xl font-bold tracking-tight">{{ row.title }}</h3>
+          <p v-if="row.subtitle" class="text-[13px] text-[var(--wl-text-2)]">{{ row.subtitle }}</p>
         </div>
         <div :class="rowClass">
           <SuggestionCard v-for="s in row.list" :key="s.id" :suggestion="s" :host="host" @not-interested="remove" />
         </div>
         <!-- Trailers sit right under the picks, as on iOS. -->
         <template v-if="row.key === 'picks' && !isPanel && feed.trailers.length">
-          <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-3">Trailers for you</h3>
+          <h3 class="text-xl font-bold tracking-tight mt-4">Trailers for you</h3>
           <div :class="rowClass">
             <button
               v-for="t in feed.trailers"
@@ -86,15 +87,15 @@ const rowClass = 'flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1'
               class="cursor-pointer w-60 shrink-0 flex flex-col gap-1.5 text-left"
               @click="host.playTrailer(t.key)"
             >
-              <span class="relative block aspect-video rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700/60">
+              <span v-squircle class="relative block aspect-video rounded-[14px] overflow-hidden bg-[var(--wl-well)]">
                 <img :src="`https://img.youtube.com/vi/${t.key}/hqdefault.jpg`" :alt="t.title.title" loading="lazy" class="w-full h-full object-cover" />
                 <span class="absolute inset-0 grid place-items-center">
-                  <span class="grid place-items-center w-11 h-11 rounded-full bg-black/55 text-white">
+                  <span class="grid place-items-center w-11 h-11 rounded-full bg-black/40 backdrop-blur-md text-white">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                   </span>
                 </span>
               </span>
-              <span class="truncate text-sm font-semibold text-slate-900 dark:text-white">{{ t.title.title }}</span>
+              <span class="truncate text-sm font-semibold text-[var(--wl-text)]">{{ t.title.title }}</span>
             </button>
           </div>
         </template>
